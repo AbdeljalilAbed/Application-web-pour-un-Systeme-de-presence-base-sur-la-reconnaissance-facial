@@ -1,1 +1,1 @@
-fetchdata().catch(console.dir);
+getAggregatedData
