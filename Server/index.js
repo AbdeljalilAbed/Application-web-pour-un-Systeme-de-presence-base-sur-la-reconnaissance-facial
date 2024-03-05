@@ -112,6 +112,15 @@ app.get("/getGroupedDataForGroup2", async (req, res) => {
   }
 });
 
+app.delete("/deleteEtd/:matricule", (req, res) => {
+  const { matricule } = req.params;
+  PModel.deleteOne({ matricule: matricule })
+    .then(() => res.status(204).send())
+    .catch((err) =>
+      res.status(500).send(`Error deleting student data: ${err.message}`)
+    );
+});
+
 app.listen(3001, () => {
   console.log("Server is running");
 });

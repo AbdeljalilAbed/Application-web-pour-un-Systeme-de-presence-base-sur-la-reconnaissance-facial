@@ -1,1 +1,1 @@
-getAggregatedData
+  console.log(data);

@@ -27,6 +27,13 @@ function Table() {
           console.log(`Added ${MatriculeEtd} to the collection presence`)
         )
         .catch((err) => console.log(err));
+    } else {
+      axios
+        .delete(`http://localhost:3001/deleteEtd/${MatriculeEtd}`)
+        .then(() =>
+          console.log(`Deleted ${MatriculeEtd} from the collection presence`)
+        )
+        .catch((err) => console.log(err));
     }
   };
   return (
