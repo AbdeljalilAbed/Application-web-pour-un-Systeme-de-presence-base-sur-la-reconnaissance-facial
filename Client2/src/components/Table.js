@@ -1,28 +1,38 @@
-import React from "react";
-import "bootstrap/dist/css/bootstrap.css";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 function Table() {
   const [Etds, setEtds] = useState([]);
-  //const [EtdsG2, setEtdsG2] = useState([]);
+  const [EtdsG2, setEtdsG2] = useState([]);
 
-  /*   useEffect(() => {
-    axios
-      .get("http://localhost:3001/getGroupedDataForGroup2")
-      .then((Etds) => setEtdsG2(EtdsG2.data))
-      .catch((err) => console.log(err));
-  }, []) */ useEffect(() => {
+  useEffect(() => {
     axios
       .get("http://localhost:3001/getAggregatedData")
-      .then((Etds) => setEtds(Etds.data))
+      .then((res) => setEtds(res.data))
       .catch((err) => console.log(err));
   }, []);
 
+  useEffect(() => {
+    axios
+      .get("http://localhost:3001/getGroupedDataForGroup2")
+      .then((res) => setEtdsG2(res.data))
+      .catch((err) => console.log(err));
+  }, []);
+
+  const handleCheckboxChange = (MatriculeEtd, checked) => {
+    if (checked) {
+      axios
+        .post("http://localhost:3001/postEtds", { matricule: MatriculeEtd })
+        .then(() =>
+          console.log(`Added ${MatriculeEtd} to the collection presence`)
+        )
+        .catch((err) => console.log(err));
+    }
+  };
   return (
     <div className="container">
       <div className="table-responsive">
-        <table className="table table-bordered ">
+        <table className="table table-bordered">
           <thead>
             <tr>
               <th>#</th>
@@ -33,7 +43,10 @@ function Table() {
             </tr>
           </thead>
           <tbody>
-            {Etds.map((Etd, index) => {
+            {EtdsG2.map((Etd, index) => {
+              const isPresent = Etds.some(
+                (EtdP) => EtdP.MatriculeEtd === Etd.MatriculeEtd
+              );
               return (
                 <tr key={index}>
                   <th scope="row">{index + 1}</th>
@@ -45,30 +58,11 @@ function Table() {
                       key={index}
                       type="checkbox"
                       aria-label="Checkbox for following text input"
-                      checked
-                    />
-                    {/* 
-                    {EtdsG2.map((EtdP, index) => {
-                      if (EtdP.MatriculeEtd === Etd.MatriculeEtd) {
-                        return (
-                          <input
-                            key={index}
-                            type="checkbox"
-                            aria-label="Checkbox for following text input"
-                            checked
-                          />
-                        );
-                      } else {
-                        return (
-                          <input
-                            key={index}
-                            type="checkbox"
-                            aria-label="Checkbox for following text input"
-                          />
-                        );
+                      checked={isPresent}
+                      onChange={(e) =>
+                        handleCheckboxChange(Etd.MatriculeEtd, e.target.checked)
                       }
-                    })}
- */}{" "}
+                    />
                   </td>
                 </tr>
               );
