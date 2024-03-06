@@ -1,1 +1,0 @@
-fetchdata().catch(console.dir);
