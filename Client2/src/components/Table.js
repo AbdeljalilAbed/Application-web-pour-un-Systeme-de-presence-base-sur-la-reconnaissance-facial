@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 function Table() {
-  const [Etds, setEtds] = useState([]);
+  //const [Etds, setEtds] = useState([]);
   const [EtdsG2, setEtdsG2] = useState([]);
   const [isPresent, setIsPresent] = useState({});
 
@@ -10,7 +10,7 @@ function Table() {
     axios
       .get("http://localhost:3001/getAggregatedData")
       .then((res) => {
-        setEtds(res.data);
+        //setEtds(res.data);
 
         // Obtenir les MatriculeEtd présents dans la réponse de getAggregatedData
         const matriculesInAggregatedData = res.data.map(item => item.MatriculeEtd);
