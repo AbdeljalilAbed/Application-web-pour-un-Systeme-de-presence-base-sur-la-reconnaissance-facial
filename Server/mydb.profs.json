@@ -1,0 +1,37 @@
+[
+  {
+    "MatriculeEtd": "1",
+    "nom": "Slimane",
+    "prenom": "Larabi"
+  },
+  {
+    "MatriculeEtd": "2",
+    "nom": "kheroua ",
+    "prenom": "Naima"
+  },
+  {
+    "MatriculeEtd": "3",
+    "nom": "Zellal",
+    "prenom": "Nassim"
+  },
+  {
+    "MatriculeEtd": "4",
+    "nom": "Boubenia",
+    "prenom": "Salim"
+  },
+  {
+    "MatriculeEtd": "5",
+    "nom": "Bensalah",
+    "prenom": "Saliha"
+  },
+  {
+    "MatriculeEtd": "6",
+    "nom": "Bouyakoub",
+    "prenom": "Samia"
+  },
+  {
+    "MatriculeEtd": "7",
+    "nom": "Mekhaldi",
+    "prenom": "Fouzi"
+  }
+]

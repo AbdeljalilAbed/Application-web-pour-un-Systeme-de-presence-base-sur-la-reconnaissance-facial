@@ -1,0 +1,98 @@
+[
+  {
+    "MatriculeProf": "1",
+    "section": "A",
+    "groupe": "",
+    "module": "Miv",
+    "IdCreneau": "34",
+    "salle": "SC"
+  },
+  {
+    "MatriculeProf": "2",
+    "section": "B",
+    "groupe": "",
+    "module": "A/C SERV",
+    "IdCreneau": "22",
+    "salle": "D8"
+  },
+  {
+    "MatriculeProf": "3",
+    "section": "B",
+    "groupe": "",
+    "module": "DOC STR",
+    "IdCreneau": "25",
+    "salle": "221D"
+  },
+  {
+    "MatriculeProf": "4",
+    "section": "B",
+    "groupe": "1",
+    "module": "PWEB",
+    "IdCreneau": "41",
+    "salle": "TP130"
+  },
+  {
+    "MatriculeProf": "4",
+    "section": "B",
+    "groupe": "2",
+    "module": "PWEB",
+    "IdCreneau": "42",
+    "salle": "TP122"
+  },
+  {
+    "MatriculeProf": "4",
+    "section": "B",
+    "groupe": "3",
+    "module": "PWEB",
+    "IdCreneau": "43",
+    "salle": "TP122"
+  },
+  {
+    "MatriculeProf": "4",
+    "section": "B",
+    "groupe": "4",
+    "module": "PWEB",
+    "IdCreneau": "44",
+    "salle": "TP122"
+  },
+  {
+    "MatriculeProf": "5",
+    "section": "B",
+    "groupe": "2",
+    "module": "A/C SERV",
+    "IdCreneau": "41",
+    "salle": "TP130"
+  },
+  {
+    "MatriculeProf": "5",
+    "section": "B",
+    "groupe": "1",
+    "module": "A/C SERV",
+    "IdCreneau": "42",
+    "salle": "TP131"
+  },
+  {
+    "MatriculeProf": "5",
+    "section": "B",
+    "groupe": "3",
+    "module": "A/C SERV",
+    "IdCreneau": "44",
+    "salle": "TP132"
+  },
+  {
+    "MatriculeProf": "5",
+    "section": "B",
+    "groupe": "4",
+    "module": "A/C SERV",
+    "IdCreneau": "45",
+    "salle": "TP132"
+  },
+  {
+    "MatriculeProf": "6",
+    "section": "B",
+    "groupe": "",
+    "module": "PWEB",
+    "IdCreneau": "52",
+    "salle": "C206"
+  }
+]
