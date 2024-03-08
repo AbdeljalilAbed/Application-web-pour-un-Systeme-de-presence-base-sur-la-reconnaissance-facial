@@ -9,7 +9,7 @@ function Table() {
 
   function fetchData() {
     axios
-      .get("http://localhost:3001/getAggregatedData")
+      .get("http://localhost:3001/getEtdsPresent")
       .then((res) => {
         //setEtds(res.data);
 
@@ -39,7 +39,9 @@ function Table() {
   const handleCheckboxChange = (MatriculeEtd, checked) => {
     if (checked) {
       axios
-        .post("http://localhost:3001/postEtds", { matricule: MatriculeEtd })
+        .post("http://localhost:3001/postEtdsPresent", {
+          matricule: MatriculeEtd,
+        })
         .then(() => {
           setIsPresent((prevState) => ({ ...prevState, [MatriculeEtd]: true }));
           console.log(`Added ${MatriculeEtd} to the collection presence`);

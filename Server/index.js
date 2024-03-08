@@ -17,7 +17,7 @@ app.get("/", (req, res) => {
   res.send("Welcome to my API"); // You can send any response you want here
 });
 
-app.post("/postEtds", (req, res) => {
+app.post("/postEtdsPresent", (req, res) => {
   const data = req.body;
   console.log(data);
   const newEtd = new PModel(data);
@@ -52,7 +52,7 @@ app.get("/getP", (req, res) => {
 
 // Assuming you have already defined your Express app, Mongoose models, and middleware
 
-app.get("/getAggregatedData", async (req, res) => {
+app.get("/getEtdsPresent", async (req, res) => {
   try {
     const result = await PModel.aggregate([
       {
