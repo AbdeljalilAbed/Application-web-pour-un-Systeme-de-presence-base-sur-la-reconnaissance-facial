@@ -29,6 +29,15 @@ app.post("/postEtds", (req, res) => {
     );
 });
 
+app.delete("/deleteEtd/:matricule", (req, res) => {
+  const { matricule } = req.params;
+  PModel.deleteOne({ matricule: matricule })
+    .then(() => res.status(204).send())
+    .catch((err) =>
+      res.status(500).send(`Error deleting student data: ${err.message}`)
+    );
+});
+
 app.get("/getEtds", (req, res) => {
   EtdModel.find()
     .then((Etds) => res.json(Etds))
@@ -110,15 +119,6 @@ app.get("/getGroupedDataForGroup2", async (req, res) => {
     console.error(err);
     res.status(500).json({ error: "An error occurred" });
   }
-});
-
-app.delete("/deleteEtd/:matricule", (req, res) => {
-  const { matricule } = req.params;
-  PModel.deleteOne({ matricule: matricule })
-    .then(() => res.status(204).send())
-    .catch((err) =>
-      res.status(500).send(`Error deleting student data: ${err.message}`)
-    );
 });
 
 app.listen(3001, () => {

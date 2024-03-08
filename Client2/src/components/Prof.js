@@ -23,15 +23,16 @@ function Prof(props) {
           <div className="div-2">
             <div className="div-3">Classroom Insights</div>
             <div className="div-4">Today's attendance at a glance.</div>
-            <div className="div-5">
+            {/*             <div className="div-5">
               <button
-                //onClick={fetchData}
+                //onClick={Table}
                 type="button"
                 className="btn btn-secondary btn-lg"
               >
                 Mark Attendance
               </button>
             </div>
+ */}{" "}
           </div>
         </div>
         <br></br>

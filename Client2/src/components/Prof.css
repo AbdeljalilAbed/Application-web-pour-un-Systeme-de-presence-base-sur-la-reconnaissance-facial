@@ -28,10 +28,12 @@ body {
 }
 .div-2 {
   display: flex;
+  align-items: center;
+
   width: 840px;
   max-width: 100%;
   flex-direction: column;
-  margin: 102px 0 46px;
+  margin: 0px 46px;
 }
 @media (max-width: 991px) {
   .div-2 {
