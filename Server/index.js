@@ -1,5 +1,9 @@
 const express = require("express");
 const mongoose = require("mongoose");
+
+const multer = require("multer");
+const xlsx = require("xlsx");
+
 const cors = require("cors");
 const EtdModel = require("./models/etudiants");
 const PModel = require("./models/presence");
@@ -9,6 +13,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+const upload = multer({ dest: "uploads/" });
+
 mongoose.connect("mongodb://localhost:27017/mydb", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -16,6 +22,44 @@ mongoose.connect("mongodb://localhost:27017/mydb", {
 
 app.get("/", (req, res) => {
   res.send("Welcome to my API"); // You can send any response you want here
+});
+
+// Route for uploading Excel file
+app.post("/upload", upload.single("file"), (req, res) => {
+  // Parse the Excel file
+  const workbook = xlsx.readFile(req.file.path);
+  const sheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[sheetName];
+  const data = xlsx.utils.sheet_to_json(sheet);
+
+  // Map Excel columns to MongoDB fields
+  const fieldMap = {
+    palier: "palier",
+    specialite: "specialite",
+    section: "section",
+    matricule: "MatriculeEtd",
+    nom: "nom",
+    prenom: "prenom",
+    etat: "etat",
+    groupe: "groupe",
+  };
+
+  const mappedData = data.map((row) => {
+    const mappedRow = {};
+    for (const [excelField, mongoField] of Object.entries(fieldMap)) {
+      mappedRow[mongoField] = row[excelField];
+    }
+    return mappedRow;
+  });
+  console.log(mappedData);
+  try {
+    EtdModel.insertMany(mappedData);
+    EtdModel.updateMany({}, { $unset: { __v: 0 } });
+    res.send("Data inserted succesfully");
+  } catch (error) {
+    console.log(err);
+    res.status(500).send(`Failed ti insert data in mongoDB`);
+  }
 });
 
 app.post("/postEtdsPresent", (req, res) => {
@@ -40,27 +84,7 @@ app.delete("/deleteEtd/:matricule", (req, res) => {
 });
 
 app.get("/getEtds", async (req, res) => {
-  try {
-    const result = await EModel.aggregate([
-      {
-        $match: {
-          MatriculeProf: "1",
-          IdCreneau: "34",
-        },
-      },
-      {
-        $project: { _id: 0, section: 1, groupe: 1 },
-      },
-    ]);
-    res.json(result);
-  } catch (error) {
-    console.error(err);
-    res.status(500).json({ error: "An error occurred" });
-  }
-});
-
-app.get("/getP", (req, res) => {
-  PModel.find()
+  EtdModel.find()
     .then((Etds) => res.json(Etds))
     .catch((err) => res.status(500).json({ error: err.message }));
 });

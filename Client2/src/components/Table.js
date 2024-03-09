@@ -20,7 +20,7 @@ function Table() {
         );
 
         axios
-          .get("http://localhost:3001/getGroupedDataForGroup2")
+          .get("http://localhost:3001/getEtds")
           .then((res) => {
             setEtdsG2(res.data);
             // Créer un objet avec les MatriculeEtd comme clés et initialiser à true
