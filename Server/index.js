@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const EtdModel = require("./models/etudiants");
 const PModel = require("./models/presence");
+const EModel = require("./models/enseigne");
 
 const app = express();
 app.use(cors());
@@ -38,10 +39,24 @@ app.delete("/deleteEtd/:matricule", (req, res) => {
     );
 });
 
-app.get("/getEtds", (req, res) => {
-  EtdModel.find()
-    .then((Etds) => res.json(Etds))
-    .catch((err) => res.status(500).json({ error: err.message }));
+app.get("/getEtds", async (req, res) => {
+  try {
+    const result = await EModel.aggregate([
+      {
+        $match: {
+          MatriculeProf: "1",
+          IdCreneau: "34",
+        },
+      },
+      {
+        $project: { _id: 0, section: 1, groupe: 1 },
+      },
+    ]);
+    res.json(result);
+  } catch (error) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred" });
+  }
 });
 
 app.get("/getP", (req, res) => {
