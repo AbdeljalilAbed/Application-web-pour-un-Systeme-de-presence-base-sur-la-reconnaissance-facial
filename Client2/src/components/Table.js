@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { backendURL } from "../config";
 import axios from "axios";
 import "./Table.css";
 
@@ -10,7 +10,7 @@ function Table() {
 
   function fetchData() {
     axios
-      .get("http://localhost:3001/getEtdsPresent")
+      .get(backendURL + "/getEtdsPresent")
       .then((res) => {
         //setEtds(res.data);
 
@@ -20,7 +20,7 @@ function Table() {
         );
 
         axios
-          .get("http://localhost:3001/getEtds")
+          .get(backendURL + "/getEtds")
           .then((res) => {
             setEtdsG2(res.data);
             // Créer un objet avec les MatriculeEtd comme clés et initialiser à true
@@ -40,7 +40,7 @@ function Table() {
   const handleCheckboxChange = (MatriculeEtd, checked) => {
     if (checked) {
       axios
-        .post("http://localhost:3001/postEtdsPresent", {
+        .post(backendURL + "/postEtdsPresent", {
           matricule: MatriculeEtd,
         })
         .then(() => {
@@ -50,7 +50,7 @@ function Table() {
         .catch((err) => console.log(err));
     } else {
       axios
-        .delete(`http://localhost:3001/deleteEtd/${MatriculeEtd}`)
+        .delete(`${backendURL}/deleteEtd/${MatriculeEtd}`)
         .then(() => {
           setIsPresent((prevState) => ({
             ...prevState,
