@@ -1,0 +1,65 @@
+[{
+  "_id": {
+    "$oid": "65eb2bcdcffd595aaa6bd8aa"
+  },
+  "MatriculeProf": "1",
+  "section": "A",
+  "groupe": null,
+  "module": "Reseau de neurones",
+  "IdCreneau": "34",
+  "salle": "SC",
+  "palier": "M1",
+  "specialite": "IV"
+},
+{
+  "_id": {
+    "$oid": "65ed68e6cffd595aaa6bd8d9"
+  },
+  "MatriculeProf": "2",
+  "section": "B",
+  "groupe": null,
+  "module": "A/C SERV",
+  "IdCreneau": "22",
+  "salle": "D8",
+  "palier": "L3",
+  "specialite": "I"
+},
+{
+  "_id": {
+    "$oid": "65ed89ddcffd595aaa6bd8e5"
+  },
+  "MatriculeProf": "3",
+  "section": "B",
+  "groupe": null,
+  "module": "DOC STR",
+  "IdCreneau": "25",
+  "salle": "221D",
+  "palier": "L3",
+  "specialite": "I"
+},
+{
+  "_id": {
+    "$oid": "65ed8a13cffd595aaa6bd8e6"
+  },
+  "MatriculeProf": "4",
+  "section": "B",
+  "groupe": "1",
+  "module": "PWEB",
+  "IdCreneau": "41",
+  "salle": "TP122",
+  "palier": "L3",
+  "specialite": "I"
+},
+{
+  "_id": {
+    "$oid": "65ed8a40cffd595aaa6bd8e7"
+  },
+  "MatriculeProf": "5",
+  "section": "B",
+  "groupe": "2",
+  "module": "A/C SERV",
+  "IdCreneau": "41",
+  "salle": "TP130",
+  "palier": "L3",
+  "specialite": "I"
+}]

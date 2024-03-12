@@ -1,0 +1,326 @@
+[
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f012"
+    },
+    "IdCreneau": "11",
+    "jours": "Samedi",
+    "h_debut": "08:00",
+    "h_fin": "09:30"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f013"
+    },
+    "IdCreneau": "12",
+    "jours": "Samedi",
+    "h_debut": "09:40",
+    "h_fin": "11:10"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f014"
+    },
+    "IdCreneau": "13",
+    "jours": "Samedi",
+    "h_debut": "11:20",
+    "h_fin": "12:50"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f015"
+    },
+    "IdCreneau": "14",
+    "jours": "Samedi",
+    "h_debut": "13:00",
+    "h_fin": "14:30"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f016"
+    },
+    "IdCreneau": "15",
+    "jours": "Samedi",
+    "h_debut": "14:40",
+    "h_fin": "16:10"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f017"
+    },
+    "IdCreneau": "16",
+    "jours": "Samedi",
+    "h_debut": "16:20",
+    "h_fin": "17:50"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f018"
+    },
+    "IdCreneau": "21",
+    "jours": "Dimanche",
+    "h_debut": "08:00",
+    "h_fin": "09:30"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f019"
+    },
+    "IdCreneau": "22",
+    "jours": "Dimanche",
+    "h_debut": "09:40",
+    "h_fin": "11:10"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f01a"
+    },
+    "IdCreneau": "23",
+    "jours": "Dimanche",
+    "h_debut": "11:20",
+    "h_fin": "12:50"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f01b"
+    },
+    "IdCreneau": "24",
+    "jours": "Dimanche",
+    "h_debut": "13:00",
+    "h_fin": "14:30"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f01c"
+    },
+    "IdCreneau": "25",
+    "jours": "Dimanche",
+    "h_debut": "14:40",
+    "h_fin": "16:10"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f01d"
+    },
+    "IdCreneau": "26",
+    "jours": "Dimanche",
+    "h_debut": "16:20",
+    "h_fin": "17:50"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f01e"
+    },
+    "IdCreneau": "31",
+    "jours": "Lundi",
+    "h_debut": "08:00",
+    "h_fin": "09:30"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f01f"
+    },
+    "IdCreneau": "32",
+    "jours": "Lundi",
+    "h_debut": "09:40",
+    "h_fin": "11:10"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f020"
+    },
+    "IdCreneau": "33",
+    "jours": "Lundi",
+    "h_debut": "11:20",
+    "h_fin": "12:50"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f021"
+    },
+    "IdCreneau": "34",
+    "jours": "Lundi",
+    "h_debut": "13:00",
+    "h_fin": "14:30"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f022"
+    },
+    "IdCreneau": "35",
+    "jours": "Lundi",
+    "h_debut": "14:40",
+    "h_fin": "16:10"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f023"
+    },
+    "IdCreneau": "36",
+    "jours": "Lundi",
+    "h_debut": "16:20",
+    "h_fin": "17:50"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f024"
+    },
+    "IdCreneau": "41",
+    "jours": "Mardi",
+    "h_debut": "08:00",
+    "h_fin": "09:30"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f025"
+    },
+    "IdCreneau": "42",
+    "jours": "Mardi",
+    "h_debut": "09:40",
+    "h_fin": "11:10"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f026"
+    },
+    "IdCreneau": "43",
+    "jours": "Mardi",
+    "h_debut": "11:20",
+    "h_fin": "12:50"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f027"
+    },
+    "IdCreneau": "44",
+    "jours": "Mardi",
+    "h_debut": "13:00",
+    "h_fin": "14:30"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f028"
+    },
+    "IdCreneau": "45",
+    "jours": "Mardi",
+    "h_debut": "14:40",
+    "h_fin": "16:10"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f029"
+    },
+    "IdCreneau": "46",
+    "jours": "Mardi",
+    "h_debut": "16:20",
+    "h_fin": "17:50"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f02a"
+    },
+    "IdCreneau": "51",
+    "jours": "Mercredi",
+    "h_debut": "08:00",
+    "h_fin": "09:30"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f02b"
+    },
+    "IdCreneau": "52",
+    "jours": "Mercredi",
+    "h_debut": "09:40",
+    "h_fin": "11:10"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f02c"
+    },
+    "IdCreneau": "53",
+    "jours": "Mercredi",
+    "h_debut": "11:20",
+    "h_fin": "12:50"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f02d"
+    },
+    "IdCreneau": "54",
+    "jours": "Mercredi",
+    "h_debut": "13:00",
+    "h_fin": "14:30"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f02e"
+    },
+    "IdCreneau": "55",
+    "jours": "Mercredi",
+    "h_debut": "14:40",
+    "h_fin": "16:10"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f02f"
+    },
+    "IdCreneau": "56",
+    "jours": "Mercredi",
+    "h_debut": "16:20",
+    "h_fin": "17:50"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f030"
+    },
+    "IdCreneau": "61",
+    "jours": "Jeudi",
+    "h_debut": "08:00",
+    "h_fin": "09:30"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f031"
+    },
+    "IdCreneau": "62",
+    "jours": "Jeudi",
+    "h_debut": "09:40",
+    "h_fin": "11:10"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f032"
+    },
+    "IdCreneau": "63",
+    "jours": "Jeudi",
+    "h_debut": "11:20",
+    "h_fin": "12:50"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f033"
+    },
+    "IdCreneau": "64",
+    "jours": "Jeudi",
+    "h_debut": "13:00",
+    "h_fin": "14:30"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f034"
+    },
+    "IdCreneau": "65",
+    "jours": "Jeudi",
+    "h_debut": "14:40",
+    "h_fin": "16:10"
+  },
+  {
+    "_id": {
+      "$oid": "65dc6d5b323651037171f035"
+    },
+    "IdCreneau": "66",
+    "jours": "Jeudi",
+    "h_debut": "16:20",
+    "h_fin": "17:50"
+  }
+]
