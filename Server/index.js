@@ -10,6 +10,8 @@ const PModel = require("./models/presence");
 const EnseigneModel = require("./models/enseigne");
 const ProfModel = require("./models/Profs");
 
+const process = require("process");
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -23,6 +25,29 @@ mongoose.connect("mongodb://localhost:27017/mydb", {
 
 app.get("/", (req, res) => {
   res.send("Welcome to my API"); // You can send any response you want here
+});
+
+// route to convertToEmbeddings a directory of images
+app.post("/convertToEmbeddings", upload.array("images"), (req, res) => {
+  //console.log(req.files);
+  // res.send("Images uploaded successfully");
+  var spawn = require("child_process").spawn;
+  var processe = spawn("python", [
+    process.env.EMBEDDING_SCRIPT_PATH,
+    "C:/Users/TRETEC/Desktop/PFE/archive",
+    process.env.DB_URL,
+    process.env.RECOGNITION_MODEL_PATH,
+    process.env.DETECTION_MODEL_PATH,
+  ]);
+
+  // Takes stdout data from script which executed
+  // with arguments and send this data to res object
+  processe.stdout.on("data", function (data) {
+    console.log(data.toString());
+  });
+  processe.stderr.on("data", function (data) {
+    console.log(data.toString());
+  });
 });
 
 // Route for uploading Excel file
@@ -52,7 +77,7 @@ app.post("/upload", upload.single("file"), (req, res) => {
     }
     return mappedRow;
   });
-  console.log(mappedData);
+  //console.log(mappedData);
   try {
     EtdModel.insertMany(mappedData);
     EtdModel.updateMany({}, { $unset: { __v: 0 } });
@@ -65,7 +90,7 @@ app.post("/upload", upload.single("file"), (req, res) => {
 
 app.post("/postEtdsPresent", (req, res) => {
   const data = req.body;
-  console.log(data);
+  //console.log(data);
   const newEtd = new PModel(data);
   newEtd
     .save()
@@ -86,16 +111,13 @@ app.delete("/deleteEtd/:matricule", (req, res) => {
 
 app.get("/getEtds/:IdCreneau/:MatriculeProf", async (req, res) => {
   const { IdCreneau, MatriculeProf } = req.params;
-  console.log(IdCreneau + MatriculeProf);
   try {
     const enseigne = await EnseigneModel.findOne({ IdCreneau, MatriculeProf });
-    console.log(enseigne);
     if (!enseigne) {
       return res.status(404).json({ message: "Enseigne not found" });
     }
 
     const { palier, specialite, section, groupe } = enseigne;
-    console.log(palier, specialite, section, groupe);
     etudiants = null;
     if (groupe == null) {
       etudiants = await EtdModel.find({
@@ -186,7 +208,7 @@ app.get("/getGroupedDataForGroup2", async (req, res) => {
     ]);
 
     res.json(result);
-    console.log(result);
+    //console.log(result);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "An error occurred" });
