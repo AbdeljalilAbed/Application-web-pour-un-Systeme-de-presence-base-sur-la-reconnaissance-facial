@@ -1,13 +1,16 @@
 const mongoose = require("mongoose");
 
-const ESchema = new mongoose.Schema({
-  matriculeProf: String,
-  Idcreneau: String,
+const EnseigneSchema = new mongoose.Schema({
+  MatriculeProf: String,
   section: String,
   groupe: String,
   module: String,
+  IdCreneau: String,
   salle: String,
+  palier: String,
+  specialite: String,
 });
 
-const EModel = mongoose.model("enseigne", ESchema);
-module.exports = EModel;
+const EnseigneModel = mongoose.model("enseignements", EnseigneSchema);
+console.log(EnseigneModel.find());
+module.exports = EnseigneModel;

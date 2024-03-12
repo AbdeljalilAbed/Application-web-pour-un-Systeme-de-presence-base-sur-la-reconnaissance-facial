@@ -7,7 +7,8 @@ const xlsx = require("xlsx");
 const cors = require("cors");
 const EtdModel = require("./models/etudiants");
 const PModel = require("./models/presence");
-const EModel = require("./models/enseigne");
+const EnseigneModel = require("./models/enseigne");
+const ProfModel = require("./models/Profs");
 
 const app = express();
 app.use(cors());
@@ -83,10 +84,42 @@ app.delete("/deleteEtd/:matricule", (req, res) => {
     );
 });
 
-app.get("/getEtds", async (req, res) => {
-  EtdModel.find()
-    .then((Etds) => res.json(Etds))
-    .catch((err) => res.status(500).json({ error: err.message }));
+app.get("/getEtds/:IdCreneau/:MatriculeProf", async (req, res) => {
+  const { IdCreneau, MatriculeProf } = req.params;
+  console.log(IdCreneau + MatriculeProf);
+  try {
+    const enseigne = await EnseigneModel.findOne({ IdCreneau, MatriculeProf });
+    console.log(enseigne);
+    if (!enseigne) {
+      return res.status(404).json({ message: "Enseigne not found" });
+    }
+
+    const { palier, specialite, section, groupe } = enseigne;
+    console.log(palier, specialite, section, groupe);
+    etudiants = null;
+    if (groupe == null) {
+      etudiants = await EtdModel.find({
+        palier: palier,
+        specialite,
+        specialite,
+        section: section,
+        //groupe: groupe,
+      });
+    } else {
+      etudiants = await EtdModel.find({
+        palier: palier,
+        specialite,
+        specialite,
+        section: section,
+        groupe: groupe,
+      });
+    }
+
+    res.json(etudiants);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
 });
 
 // Assuming you have already defined your Express app, Mongoose models, and middleware

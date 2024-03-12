@@ -20,7 +20,7 @@ function Table() {
         );
 
         axios
-          .get(backendURL + "/getEtds")
+          .get(`${backendURL}/getEtds/${"41"}/${"5"}`)
           .then((res) => {
             setEtdsG2(res.data);
             // Créer un objet avec les MatriculeEtd comme clés et initialiser à true
