@@ -9,6 +9,7 @@ const EtdModel = require("./models/etudiants");
 const PModel = require("./models/presence");
 const EnseigneModel = require("./models/enseigne");
 const ProfModel = require("./models/Profs");
+const EmbeddingsModel = require("./models/embeddings");
 
 const process = require("process");
 
@@ -50,6 +51,44 @@ app.post("/convertToEmbeddings", upload.array("images"), (req, res) => {
   });
 });
 
+//get embeddings of students
+app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
+  const { IdCreneau, MatriculeProf } = req.params;
+  EnseigneModel.findOne({ IdCreneau, MatriculeProf })
+    .then((enseigne) => {
+      if (!enseigne) {
+        return res.status(404).json({ message: "Enseigne not found" });
+      }
+
+      const { palier, specialite, section, groupe } = enseigne;
+      EtdModel.find({
+        palier: palier,
+        specialite,
+        specialite,
+        section: section,
+        groupe: groupe,
+      })
+        .then((etudiants) => {
+          const matricules = etudiants.map((etudiant) => etudiant.MatriculeEtd);
+          EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
+            .then((embeddings) => {
+              res.json(embeddings);
+            })
+            .catch((err) => {
+              console.error(err);
+              res.status(500).json({ message: "Internal server error" });
+            });
+        })
+        .catch((err) => {
+          console.error(err);
+          res.status(500).json({ message: "Internal server error" });
+        });
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ message: "Internal server error" });
+    });
+});
 // Route for uploading Excel file
 app.post("/upload", upload.single("file"), (req, res) => {
   // Parse the Excel file
