@@ -61,18 +61,23 @@ app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
       }
 
       const { palier, specialite, section, groupe } = enseigne;
-      EtdModel.find({
-        palier: palier,
-        specialite,
-        specialite,
-        section: section,
-        groupe: groupe,
-      })
-        .then((etudiants) => {
+      if (groupe == null) {
+        etudiants =  EtdModel.find({
+          palier: palier,
+          specialite,
+          specialite,
+          section: section,
+          //groupe: groupe,
+        }).then((etudiants) => {
           const matricules = etudiants.map((etudiant) => etudiant.MatriculeEtd);
           EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
             .then((embeddings) => {
-              res.json(embeddings);
+              //make the response a json object with the matricule as the key and the embeddings as the value
+              const result = embeddings.reduce((acc, cur) => {
+                acc[cur.MatriculeEtd] = cur.embedding;
+                return acc;
+              }, {});
+              res.json(result);
             })
             .catch((err) => {
               console.error(err);
@@ -83,6 +88,35 @@ app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
           console.error(err);
           res.status(500).json({ message: "Internal server error" });
         });
+      } else {
+        etudiants =  EtdModel.find({
+          palier: palier,
+          specialite,
+          specialite,
+          section: section,
+          groupe: groupe,
+        }).then((etudiants) => {
+          const matricules = etudiants.map((etudiant) => etudiant.MatriculeEtd);
+          EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
+            .then((embeddings) => {
+              //make the response a json object with the matricule as the key and the embeddings as the value
+              const result = embeddings.reduce((acc, cur) => {
+                acc[cur.MatriculeEtd] = cur.embedding;
+                return acc;
+              }, {});
+              res.json(result);
+            })
+            .catch((err) => {
+              console.error(err);
+              res.status(500).json({ message: "Internal server error" });
+            });
+        })
+        .catch((err) => {
+          console.error(err);
+          res.status(500).json({ message: "Internal server error" });
+        });
+      }
+        
     })
     .catch((err) => {
       console.error(err);
