@@ -19,7 +19,7 @@ app.use(express.json());
 
 const upload = multer({ dest: "uploads/" });
 
-mongoose.connect("mongodb://localhost:27017/mydb", {
+mongoose.connect(process.env.DB_URL + "/mydb", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -54,74 +54,96 @@ app.post("/convertToEmbeddings", upload.array("images"), (req, res) => {
 //get embeddings of students
 app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
   const { IdCreneau, MatriculeProf } = req.params;
-  EnseigneModel.findOne({ IdCreneau, MatriculeProf })
-    .then((enseigne) => {
-      if (!enseigne) {
-        return res.status(404).json({ message: "Enseigne not found" });
-      }
+  //If idCreneau and MatriculeProf are equal to all return all the embeddings
+  if (IdCreneau === "all" && MatriculeProf === "all") {
+    EmbeddingsModel.find()
+      .then((embeddings) => {
+        //make the response a json object with the matricule as the key and the embeddings as the value
+        const result = embeddings.reduce((acc, cur) => {
+          acc[cur.MatriculeEtd] = cur.embedding;
+          return acc;
+        }, {});
+        res.json(result);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ message: "Internal server error" });
+      });
+  } else {
+    EnseigneModel.findOne({ IdCreneau, MatriculeProf })
+      .then((enseigne) => {
+        if (!enseigne) {
+          return res.status(404).json({ message: "Enseigne not found" });
+        }
 
-      const { palier, specialite, section, groupe } = enseigne;
-      if (groupe == null) {
-        etudiants =  EtdModel.find({
-          palier: palier,
-          specialite,
-          specialite,
-          section: section,
-          //groupe: groupe,
-        }).then((etudiants) => {
-          const matricules = etudiants.map((etudiant) => etudiant.MatriculeEtd);
-          EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
-            .then((embeddings) => {
-              //make the response a json object with the matricule as the key and the embeddings as the value
-              const result = embeddings.reduce((acc, cur) => {
-                acc[cur.MatriculeEtd] = cur.embedding;
-                return acc;
-              }, {});
-              res.json(result);
+        const { palier, specialite, section, groupe } = enseigne;
+        if (groupe == null) {
+          etudiants = EtdModel.find({
+            palier: palier,
+            specialite,
+            specialite,
+            section: section,
+            //groupe: groupe,
+          })
+            .then((etudiants) => {
+              const matricules = etudiants.map(
+                (etudiant) => etudiant.MatriculeEtd
+              );
+              EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
+                .then((embeddings) => {
+                  //make the response a json object with the matricule as the key and the embeddings as the value
+                  const result = embeddings.reduce((acc, cur) => {
+                    acc[cur.MatriculeEtd] = cur.embedding;
+                    return acc;
+                  }, {});
+                  res.json(result);
+                })
+                .catch((err) => {
+                  console.error(err);
+                  res.status(500).json({ message: "Internal server error" });
+                });
             })
             .catch((err) => {
               console.error(err);
               res.status(500).json({ message: "Internal server error" });
             });
-        })
-        .catch((err) => {
-          console.error(err);
-          res.status(500).json({ message: "Internal server error" });
-        });
-      } else {
-        etudiants =  EtdModel.find({
-          palier: palier,
-          specialite,
-          specialite,
-          section: section,
-          groupe: groupe,
-        }).then((etudiants) => {
-          const matricules = etudiants.map((etudiant) => etudiant.MatriculeEtd);
-          EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
-            .then((embeddings) => {
-              //make the response a json object with the matricule as the key and the embeddings as the value
-              const result = embeddings.reduce((acc, cur) => {
-                acc[cur.MatriculeEtd] = cur.embedding;
-                return acc;
-              }, {});
-              res.json(result);
+        } else {
+          etudiants = EtdModel.find({
+            palier: palier,
+            specialite,
+            specialite,
+            section: section,
+            groupe: groupe,
+          })
+            .then((etudiants) => {
+              const matricules = etudiants.map(
+                (etudiant) => etudiant.MatriculeEtd
+              );
+              EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
+                .then((embeddings) => {
+                  //make the response a json object with the matricule as the key and the embeddings as the value
+                  const result = embeddings.reduce((acc, cur) => {
+                    acc[cur.MatriculeEtd] = cur.embedding;
+                    return acc;
+                  }, {});
+                  res.json(result);
+                })
+                .catch((err) => {
+                  console.error(err);
+                  res.status(500).json({ message: "Internal server error" });
+                });
             })
             .catch((err) => {
               console.error(err);
               res.status(500).json({ message: "Internal server error" });
             });
-        })
-        .catch((err) => {
-          console.error(err);
-          res.status(500).json({ message: "Internal server error" });
-        });
-      }
-        
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).json({ message: "Internal server error" });
-    });
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ message: "Internal server error" });
+      });
+  }
 });
 // Route for uploading Excel file
 app.post("/upload", upload.single("file"), (req, res) => {
