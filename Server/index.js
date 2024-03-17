@@ -9,6 +9,10 @@ const EtdModel = require("./models/etudiants");
 const PModel = require("./models/presence");
 const EnseigneModel = require("./models/enseigne");
 const ProfModel = require("./models/Profs");
+const EmbeddingsModel = require("./models/embeddings");
+
+const process = require("process");
+const getIdCreneau = require("./utils");
 
 const app = express();
 app.use(cors());
@@ -16,7 +20,7 @@ app.use(express.json());
 
 const upload = multer({ dest: "uploads/" });
 
-mongoose.connect("mongodb://localhost:27017/mydb", {
+mongoose.connect(process.env.DB_URL + "/mydb", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 });
@@ -25,6 +29,222 @@ app.get("/", (req, res) => {
   res.send("Welcome to my API"); // You can send any response you want here
 });
 
+// route to convertToEmbeddings a directory of images
+app.post("/convertToEmbeddings", upload.array("images"), (req, res) => {
+  //console.log(req.files);
+  // res.send("Images uploaded successfully");
+  var spawn = require("child_process").spawn;
+  var processe = spawn("python", [
+    process.env.EMBEDDING_SCRIPT_PATH,
+    "C:/Users/TRETEC/Desktop/PFE/archive",
+    process.env.DB_URL,
+    process.env.RECOGNITION_MODEL_PATH,
+    process.env.DETECTION_MODEL_PATH,
+  ]);
+
+  // Takes stdout data from script which executed
+  // with arguments and send this data to res object
+  processe.stdout.on("data", function (data) {
+    console.log(data.toString());
+  });
+  processe.stderr.on("data", function (data) {
+    console.log(data.toString());
+  });
+});
+
+app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
+  const { IdCreneau, MatriculeProf } = req.params;
+  //If idCreneau and MatriculeProf are equal to all return all the embeddings
+  if (IdCreneau === "all" && MatriculeProf === "all") {
+    EmbeddingsModel.find()
+      .then((embeddings) => {
+        //make the response a json object with the matricule as the key and the embeddings as the value
+        const result = embeddings.reduce((acc, cur) => {
+          acc[cur.MatriculeEtd] = cur.embedding;
+          return acc;
+        }, {});
+        res.json(result);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ message: "Internal server error" });
+      });
+  } else {
+    EnseigneModel.findOne({ IdCreneau, MatriculeProf })
+      .then((enseigne) => {
+        if (!enseigne) {
+          return res.status(404).json({ message: "Enseigne not found" });
+        }
+
+        const { palier, specialite, section, groupe } = enseigne;
+        if (groupe == null) {
+          etudiants = EtdModel.find({
+            palier: palier,
+            specialite,
+            specialite,
+            section: section,
+            //groupe: groupe,
+          })
+            .then((etudiants) => {
+              const matricules = etudiants.map(
+                (etudiant) => etudiant.MatriculeEtd
+              );
+              EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
+                .then((embeddings) => {
+                  //make the response a json object with the matricule as the key and the embeddings as the value
+                  const result = embeddings.reduce((acc, cur) => {
+                    acc[cur.MatriculeEtd] = cur.embedding;
+                    return acc;
+                  }, {});
+                  res.json(result);
+                })
+                .catch((err) => {
+                  console.error(err);
+                  res.status(500).json({ message: "Internal server error" });
+                });
+            })
+            .catch((err) => {
+              console.error(err);
+              res.status(500).json({ message: "Internal server error" });
+            });
+        } else {
+          etudiants = EtdModel.find({
+            palier: palier,
+            specialite,
+            specialite,
+            section: section,
+            groupe: groupe,
+          })
+            .then((etudiants) => {
+              const matricules = etudiants.map(
+                (etudiant) => etudiant.MatriculeEtd
+              );
+              EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
+                .then((embeddings) => {
+                  //make the response a json object with the matricule as the key and the embeddings as the value
+                  const result = embeddings.reduce((acc, cur) => {
+                    acc[cur.MatriculeEtd] = cur.embedding;
+                    return acc;
+                  }, {});
+                  res.json(result);
+                })
+                .catch((err) => {
+                  console.error(err);
+                  res.status(500).json({ message: "Internal server error" });
+                });
+            })
+            .catch((err) => {
+              console.error(err);
+              res.status(500).json({ message: "Internal server error" });
+            });
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ message: "Internal server error" });
+      });
+  }
+});
+
+//get embeddings of students jdida
+/* app.get("/getEmbeddings/:idSalle", (req, res) => {
+  //get the current crenau
+  const idCrenau = getIdCreneau();
+  const idSalle = req.params.idSalle;
+
+  if (idCrenau == -1) {
+    return res.status(404).json({ message: "Hors des heures de cours" });
+  }
+
+  if (idSalle == "all") {
+    EmbeddingsModel.find()
+      .then((embeddings) => {
+        //make the response a json object with the matricule as the key and the embeddings as the value
+        const result = embeddings.reduce((acc, cur) => {
+          acc[cur.MatriculeEtd] = cur.embedding;
+          return acc;
+        }, {});
+        res.json(result);
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ message: "Internal server error" });
+      });
+  } else {
+    EnseigneModel.findOne({ idCrenau, idSalle })
+      .then((enseigne) => {
+        if (!enseigne) {
+          return res.status(404).json({ message: "Enseigne not found" });
+        }
+        const { palier, specialite, section, groupe } = enseigne;
+        if (groupe == null) {
+          etudiants = EtdModel.find({
+            palier: palier,
+            specialite,
+            specialite,
+            section: section,
+            //groupe: groupe,
+          })
+            .then((etudiants) => {
+              const matricules = etudiants.map(
+                (etudiant) => etudiant.MatriculeEtd
+              );
+              EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
+                .then((embeddings) => {
+                  //make the response a json object with the matricule as the key and the embeddings as the value
+                  const result = embeddings.reduce((acc, cur) => {
+                    acc[cur.MatriculeEtd] = cur.embedding;
+                    return acc;
+                  }, {});
+                  res.json(result);
+                })
+                .catch((err) => {
+                  console.error(err);
+                  res.status(500).json({ message: "Internal server error" });
+                });
+            })
+            .catch((err) => {
+              console.error(err);
+              res.status(500).json({ message: "Internal server error" });
+            });
+        } else {
+          etudiants = EtdModel.find({
+            palier: palier,
+            specialite,
+            specialite,
+            section: section,
+            groupe: groupe,
+          })
+            .then((etudiants) => {
+              const matricules = etudiants.map(
+                (etudiant) => etudiant.MatriculeEtd
+              );
+              EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
+                .then((embeddings) => {
+                  //make the response a json object with the matricule as the key and the embeddings as the value
+                  const result = embeddings.reduce((acc, cur) => {
+                    acc[cur.MatriculeEtd] = cur.embedding;
+                    return acc;
+                  }, {});
+                  res.json(result);
+                })
+                .catch((err) => {
+                  console.error(err);
+                  res.status(500).json({ message: "Internal server error" });
+                });
+            })
+            .catch((err) => {
+              console.error(err);
+              res.status(500).json({ message: "Internal server error" });
+            });
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        res.status(500).json({ message: "Internal server error" });
+      });
+  }
+}); */
 // Route for uploading Excel file
 app.post("/upload", upload.single("file"), (req, res) => {
   // Parse the Excel file
@@ -52,7 +272,7 @@ app.post("/upload", upload.single("file"), (req, res) => {
     }
     return mappedRow;
   });
-  console.log(mappedData);
+  //console.log(mappedData);
   try {
     EtdModel.insertMany(mappedData);
     EtdModel.updateMany({}, { $unset: { __v: 0 } });
@@ -65,7 +285,7 @@ app.post("/upload", upload.single("file"), (req, res) => {
 
 app.post("/postEtdsPresent", (req, res) => {
   const data = req.body;
-  console.log(data);
+  //console.log(data);
   const newEtd = new PModel(data);
   newEtd
     .save()
@@ -86,16 +306,13 @@ app.delete("/deleteEtd/:matricule", (req, res) => {
 
 app.get("/getEtds/:IdCreneau/:MatriculeProf", async (req, res) => {
   const { IdCreneau, MatriculeProf } = req.params;
-  console.log(IdCreneau + MatriculeProf);
   try {
     const enseigne = await EnseigneModel.findOne({ IdCreneau, MatriculeProf });
-    console.log(enseigne);
     if (!enseigne) {
       return res.status(404).json({ message: "Enseigne not found" });
     }
 
     const { palier, specialite, section, groupe } = enseigne;
-    console.log(palier, specialite, section, groupe);
     etudiants = null;
     if (groupe == null) {
       etudiants = await EtdModel.find({
@@ -186,7 +403,7 @@ app.get("/getGroupedDataForGroup2", async (req, res) => {
     ]);
 
     res.json(result);
-    console.log(result);
+    //console.log(result);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "An error occurred" });
@@ -196,3 +413,4 @@ app.get("/getGroupedDataForGroup2", async (req, res) => {
 app.listen(3001, () => {
   console.log("Server is running");
 });
+

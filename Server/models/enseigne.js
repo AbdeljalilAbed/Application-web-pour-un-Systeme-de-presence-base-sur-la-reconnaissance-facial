@@ -12,5 +12,4 @@ const EnseigneSchema = new mongoose.Schema({
 });
 
 const EnseigneModel = mongoose.model("enseignements", EnseigneSchema);
-console.log(EnseigneModel.find());
 module.exports = EnseigneModel;
