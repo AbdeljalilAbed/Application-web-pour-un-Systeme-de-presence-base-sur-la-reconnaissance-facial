@@ -247,7 +247,6 @@ app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
   }
 }); */
 
-
 // Route to add a new rpi
 
 // Route for uploading Excel file
@@ -316,15 +315,26 @@ app.post("/addRaspberryPi", (req, res) => {
     etat: true,
     addressIp: data.addressIp,
   });
-  console.log('newRaspberryPi',newRaspberryPi);
+  //console.log('newRaspberryPi',newRaspberryPi);
   newRaspberryPi
     .save()
     .then(() => console.log("RaspberryPi added successfully"))
-    .catch((err) =>
-      console.log(`Error adding RaspberryPi: ${err.message}`)
-    );
+    .catch((err) => console.log(`Error adding RaspberryPi: ${err.message}`));
 });
 
+//post raspberry pi toujours actif
+//test
+app.post("/RaspberryPiActive", (req, res) => {
+  const salle = res.data.id;
+  //find the raspberry pi with la salle and update the etat to true
+  RaspberryPiModel.findOneAndUpdate(
+    { salle: salle },
+    { etat: true },
+    { new: true }
+  )
+    .then(() => console.log("RaspberryPi updated successfully"))
+    .catch((err) => console.log(`Error updating RaspberryPi: ${err.message}`));
+});
 
 app.get("/getEtds/:IdCreneau/:MatriculeProf", async (req, res) => {
   const { IdCreneau, MatriculeProf } = req.params;
@@ -434,5 +444,13 @@ app.get("/getGroupedDataForGroup2", async (req, res) => {
 
 app.listen(3001, () => {
   console.log("Server is running");
+  setTimeout(() => {
+    RaspberryPiModel.updateMany({}, update)
+      .then((result) => {
+        console.log("Raspberry Pi documents updated successfully:", result);
+      })
+      .catch((err) => {
+        console.error("Error updating Raspberry Pi documents:", err);
+      });
+  }, 5000);
 });
-
