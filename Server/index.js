@@ -10,6 +10,7 @@ const PModel = require("./models/presence");
 const EnseigneModel = require("./models/enseigne");
 const ProfModel = require("./models/Profs");
 const EmbeddingsModel = require("./models/embeddings");
+const RaspberryPiModel = require("./models/raspberrypi");
 
 const process = require("process");
 const getIdCreneau = require("./utils");
@@ -245,6 +246,10 @@ app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
       });
   }
 }); */
+
+
+// Route to add a new rpi
+
 // Route for uploading Excel file
 app.post("/upload", upload.single("file"), (req, res) => {
   // Parse the Excel file
@@ -303,6 +308,23 @@ app.delete("/deleteEtd/:matricule", (req, res) => {
       res.status(500).send(`Error deleting student data: ${err.message}`)
     );
 });
+
+app.post("/addRaspberryPi", (req, res) => {
+  const data = req.body;
+  const newRaspberryPi = new RaspberryPiModel({
+    salle: data.salle,
+    etat: true,
+    addressIp: data.addressIp,
+  });
+  console.log('newRaspberryPi',newRaspberryPi);
+  newRaspberryPi
+    .save()
+    .then(() => console.log("RaspberryPi added successfully"))
+    .catch((err) =>
+      console.log(`Error adding RaspberryPi: ${err.message}`)
+    );
+});
+
 
 app.get("/getEtds/:IdCreneau/:MatriculeProf", async (req, res) => {
   const { IdCreneau, MatriculeProf } = req.params;
