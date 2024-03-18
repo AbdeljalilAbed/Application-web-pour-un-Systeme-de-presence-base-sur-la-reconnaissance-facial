@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { backendURL } from "../config";
 import axios from "axios";
 import "./Table.css";
@@ -8,34 +8,38 @@ function Table() {
   const [EtdsG2, setEtdsG2] = useState([]);
   const [isPresent, setIsPresent] = useState({});
 
-  function fetchData() {
-    axios
-      .get(backendURL + "/getEtdsPresent")
-      .then((res) => {
-        //setEtds(res.data);
+  useEffect(() => {
+    async function fetchData() {
+      axios
+        .get(backendURL + "/getEtdsPresent")
+        .then((res) => {
+          //setEtds(res.data);
 
-        // Obtenir les MatriculeEtd présents dans la réponse de getAggregatedData
-        const matriculesInAggregatedData = res.data.map(
-          (item) => item.MatriculeEtd
-        );
+          // Obtenir les MatriculeEtd présents dans la réponse de getAggregatedData
+          const matriculesInAggregatedData = res.data.map(
+            (item) => item.MatriculeEtd
+          );
 
-        axios
-          .get(`${backendURL}/getEtds/${"41"}/${"5"}`)
-          .then((res) => {
-            setEtdsG2(res.data);
-            // Créer un objet avec les MatriculeEtd comme clés et initialiser à true
-            const defaultPresentStatus = res.data.reduce((acc, cur) => {
-              acc[cur.MatriculeEtd] = matriculesInAggregatedData.includes(
-                cur.MatriculeEtd
-              );
-              return acc;
-            }, {});
-            setIsPresent(defaultPresentStatus);
-          })
-          .catch((err) => console.log(err));
-      })
-      .catch((err) => console.log(err));
-  }
+          axios
+            .get(`${backendURL}/getEtds/${"33"}/${"1"}`)
+            .then((res) => {
+              setEtdsG2(res.data);
+              // Créer un objet avec les MatriculeEtd comme clés et initialiser à true
+              const defaultPresentStatus = res.data.reduce((acc, cur) => {
+                acc[cur.MatriculeEtd] = matriculesInAggregatedData.includes(
+                  cur.MatriculeEtd
+                );
+                return acc;
+              }, {});
+              setIsPresent(defaultPresentStatus);
+            })
+            .catch((err) => console.log(err));
+        })
+        .catch((err) => console.log(err));
+    }
+
+    fetchData();
+  }, []);
 
   const handleCheckboxChange = (MatriculeEtd, checked) => {
     if (checked) {
@@ -66,11 +70,11 @@ function Table() {
     <div className="container">
       <div className="suii">
         <button
-          onClick={fetchData}
+          onClick={() => window.location.reload()} // Refresh the page to fetch data again
           type="button"
           className="btn btn-secondary btn-lg"
         >
-          Mark Attendance
+          Refresh Attendance
         </button>
       </div>
 
