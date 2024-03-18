@@ -7,9 +7,6 @@ import Admin from "./pages/Admin";
 import Auth from "./pages/Auth";
 import NotFoundPage from "./pages/NotFoundPage";
 
-import "./App.css";
-import "./index.css";
-
 function App() {
   return (
     <div className="App">

@@ -7,39 +7,58 @@ function Table() {
   //const [Etds, setEtds] = useState([]);
   const [EtdsG2, setEtdsG2] = useState([]);
   const [isPresent, setIsPresent] = useState({});
+  // eslint-disable-next-line no-unused-vars
+  const [matricule, setMatricule] = useState("");
 
   useEffect(() => {
     async function fetchData() {
-      axios
-        .get(backendURL + "/getEtdsPresent")
-        .then((res) => {
-          //setEtds(res.data);
+      try {
+        const token = localStorage.getItem("token");
 
-          // Obtenir les MatriculeEtd présents dans la réponse de getAggregatedData
-          const matriculesInAggregatedData = res.data.map(
-            (item) => item.MatriculeEtd
+        if (!token) {
+          console.error("Token not found in local storage");
+          return;
+        }
+
+        const matriculeResponse = await axios.get(
+          "http://localhost:3001/getMatricule",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const { matricule } = matriculeResponse.data;
+        setMatricule(matricule);
+        console.log(matricule);
+
+        const etdsResponse = await axios.get(
+          `${backendURL}/getEtds/${matricule}`
+        );
+        const etdsData = etdsResponse.data;
+        setEtdsG2(etdsResponse.data);
+
+        const aggregatedResponse = await axios.get(
+          backendURL + "/getEtdsPresent"
+        );
+        const matriculesInAggregatedData = aggregatedResponse.data.map(
+          (item) => item.MatriculeEtd
+        );
+
+        const defaultPresentStatus = etdsData.reduce((acc, cur) => {
+          acc[cur.MatriculeEtd] = matriculesInAggregatedData.includes(
+            cur.MatriculeEtd
           );
-
-          axios
-            .get(`${backendURL}/getEtds/${"33"}/${"1"}`)
-            .then((res) => {
-              setEtdsG2(res.data);
-              // Créer un objet avec les MatriculeEtd comme clés et initialiser à true
-              const defaultPresentStatus = res.data.reduce((acc, cur) => {
-                acc[cur.MatriculeEtd] = matriculesInAggregatedData.includes(
-                  cur.MatriculeEtd
-                );
-                return acc;
-              }, {});
-              setIsPresent(defaultPresentStatus);
-            })
-            .catch((err) => console.log(err));
-        })
-        .catch((err) => console.log(err));
+          return acc;
+        }, {});
+        setIsPresent(defaultPresentStatus);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     }
 
-    fetchData();
-  }, []);
+    fetchData(); // Call fetchData when the component mounts
+  }, []); // Empty dependency array ensures the effect runs only once after the initial render
 
   const handleCheckboxChange = (MatriculeEtd, checked) => {
     if (checked) {
