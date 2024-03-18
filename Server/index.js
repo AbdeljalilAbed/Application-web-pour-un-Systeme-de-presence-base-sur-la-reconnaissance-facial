@@ -45,8 +45,6 @@ app.post("/login", async (req, res) => {
 
   const token = jwt.sign({ username: user.username }, "secretKey");
 
-  await user.addToken(token);
-
   res.send({ token, role: user.role, matricule: user.matricule });
 });
 

@@ -19,22 +19,7 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  tokens: [
-    {
-      token: {
-        type: String,
-        required: true,
-      },
-    },
-  ],
 });
-
-// Method to insert a token into the tokens array
-userSchema.methods.addToken = async function (token) {
-  const user = this;
-  user.tokens.push({ token });
-  await user.save();
-};
 
 userSchema.methods.verifyPassword = async function (password) {
   const user = this;
