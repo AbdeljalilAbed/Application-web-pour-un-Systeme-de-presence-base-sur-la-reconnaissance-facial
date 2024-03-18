@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { backendURL } from "../config";
 import axios from "axios";
 import "./Table.css";
+import { jwtDecode } from "jwt-decode";
 
 function Table() {
   //const [Etds, setEtds] = useState([]);
@@ -19,21 +20,19 @@ function Table() {
           console.error("Token not found in local storage");
           return;
         }
-
-        const matriculeResponse = await axios.get(
-          "http://localhost:3001/getMatricule",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const { matricule } = matriculeResponse.data;
-        setMatricule(matricule);
-        console.log(matricule);
+        // Decode the JWT token
+        const decodedToken = jwtDecode(token);
+        if (decodedToken) {
+          // Extract the desired field (e.g., 'userId') into a variable
+          const username = decodedToken.username;
+          // Now you can use the 'userId' variable for further processing
+          console.log("User:", username);
+        } else {
+          console.error("Failed to decode JWT token");
+        }
 
         const etdsResponse = await axios.get(
-          `${backendURL}/getEtds/${matricule}`
+          `${backendURL}/getEtds/${decodedToken.username}`
         );
         const etdsData = etdsResponse.data;
         setEtdsG2(etdsResponse.data);
@@ -58,6 +57,7 @@ function Table() {
     }
 
     fetchData(); // Call fetchData when the component mounts
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures the effect runs only once after the initial render
 
   const handleCheckboxChange = (MatriculeEtd, checked) => {

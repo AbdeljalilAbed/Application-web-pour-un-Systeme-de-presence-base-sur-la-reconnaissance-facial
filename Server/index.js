@@ -30,25 +30,6 @@ mongoose.connect(process.env.DB_URL + "/mydb", {
 app.get("/", (req, res) => {
   res.send("Welcome to my API"); // You can send any response you want here
 });
-app.get("/getMatricule", async (req, res) => {
-  try {
-    // Receive the token from the frontend
-    const token = req.headers.authorization.split(" ")[1];
-    // Find the user with the token in the tokens array
-    const user = await User.findOne({ "tokens.token": token });
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    // Return the matricule of the user found in the database
-    res.json({ matricule: user.matricule });
-  } catch (error) {
-    // Handle errors, such as invalid token or database query errors
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
 
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
@@ -62,7 +43,7 @@ app.post("/login", async (req, res) => {
   if (!validPassword)
     return res.status(400).send("Invalid username or password.");
 
-  const token = jwt.sign({ userId: user.id }, "secretKey");
+  const token = jwt.sign({ username: user.username }, "secretKey");
 
   await user.addToken(token);
 
@@ -120,8 +101,16 @@ app.delete("/deleteEtd/:matricule", (req, res) => {
     );
 });
 
-app.get("/getEtds/:MatriculeProf", async (req, res) => {
-  const { MatriculeProf } = req.params;
+app.get("/getEtds/:username", async (req, res) => {
+  const { username } = req.params;
+  console.log(username);
+
+  const user = await User.findOne({ username: username.toString() });
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const MatriculeProf = user.matricule;
   console.log(MatriculeProf);
 
   try {
