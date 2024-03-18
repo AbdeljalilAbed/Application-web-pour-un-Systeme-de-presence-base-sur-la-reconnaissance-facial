@@ -7,7 +7,7 @@ import Image from "../images/img.jpg"; // Import the image
 function HomePage() {
   return (
     <>
-      <div className="container-fluid">
+      <div className="container-fluid p-auto">
         <div className="d-flex flex-column mb-3">
           <div className="p-2">
             <div className="d-flex justify-content-start">

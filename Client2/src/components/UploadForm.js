@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { backendURL } from "../config";
 
 const UploadForm = () => {
   const [file, setFile] = useState(null);
@@ -13,7 +14,7 @@ const UploadForm = () => {
     formData.append("file", file);
 
     try {
-      axios.post("http://localhost:3001/upload", formData, {
+      axios.post(backendURL + "/upload", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -27,7 +28,7 @@ const UploadForm = () => {
 
   return (
     <div>
-      <input type="file" onChange={handleFileChange} />
+      <input className="text-center" type="file" onChange={handleFileChange} />
       <button onClick={handleUpload}>Upload</button>
     </div>
   );
