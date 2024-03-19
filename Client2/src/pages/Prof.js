@@ -21,8 +21,8 @@ function Prof(props) {
       <div className="div">
         <div className="div-1">
           <div className="div-2">
-            <div className="div-3">Classroom Insights</div>
-            <div className="div-4">Today's attendance at a glance.</div>
+            <div className="div-3">Aperçus en classe</div>
+            <div className="div-4">Présence du jour en un coup d'œil.</div>
             {/*             <div className="div-5">
               <button
                 //onClick={Table}
@@ -70,8 +70,8 @@ function Prof(props) {
         <br></br>
         <div className="div-1">
           <div className="div-2">
-            <div className="div-3">Attendance Overview</div>
-            <div className="div-4">Hsitory attendance </div>
+            <div className="div-3">Vue d'ensemble de la présence</div>
+            <div className="div-4">Historique de presence </div>
           </div>
         </div>
       </div>
