@@ -1,5 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 
 const multer = require("multer");
 const xlsx = require("xlsx");
@@ -8,7 +10,7 @@ const cors = require("cors");
 const EtdModel = require("./models/etudiants");
 const PModel = require("./models/presence");
 const EnseigneModel = require("./models/enseigne");
-const ProfModel = require("./models/Profs");
+const User = require("./models/user");
 const EmbeddingsModel = require("./models/embeddings");
 
 const process = require("process");
@@ -27,6 +29,149 @@ mongoose.connect(process.env.DB_URL + "/mydb", {
 
 app.get("/", (req, res) => {
   res.send("Welcome to my API"); // You can send any response you want here
+});
+
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  const user = await User.findOne({ username });
+
+  if (!user) return res.status(400).send("Invalid username or password.");
+
+  const validPassword = await bcrypt.compare(password, user.password);
+
+  if (!validPassword)
+    return res.status(400).send("Invalid username or password.");
+
+  const token = jwt.sign({ username: user.username }, "secretKey");
+
+  res.send({ token, role: user.role, matricule: user.matricule });
+});
+
+app.post("/register", async (req, res) => {
+  try {
+    const { username, password, matricule, role } = req.body;
+
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ error: "Username already exists." });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = new User({
+      username,
+      password: hashedPassword,
+      matricule,
+      role,
+    });
+
+    const savedUser = await user.save();
+    res.json({
+      message: "User registered successfully",
+      userId: savedUser._id,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/postEtdsPresent", (req, res) => {
+  const data = req.body;
+  //console.log(data);
+  const newEtd = new PModel(data);
+  newEtd
+    .save()
+    .then(() => res.status(201).send("Student data added successfully"))
+    .catch((err) =>
+      res.status(500).send(`Error adding student data: ${err.message}`)
+    );
+});
+
+app.delete("/deleteEtd/:matricule", (req, res) => {
+  const { matricule } = req.params;
+  PModel.deleteOne({ matricule: matricule })
+    .then(() => res.status(204).send())
+    .catch((err) =>
+      res.status(500).send(`Error deleting student data: ${err.message}`)
+    );
+});
+
+app.get("/getEtds/:username", async (req, res) => {
+  const { username } = req.params;
+  console.log(username);
+
+  const user = await User.findOne({ username: username.toString() });
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const MatriculeProf = user.matricule;
+  console.log(MatriculeProf);
+
+  try {
+    const IdCreneau = getIdCreneau();
+    console.log(IdCreneau);
+    const enseigne = await EnseigneModel.findOne({ IdCreneau, MatriculeProf });
+    if (!enseigne) {
+      return res.status(404).json({ message: "Enseigne not found" });
+    }
+
+    const { palier, specialite, section, groupe } = enseigne;
+    console.log(palier, specialite, section, groupe);
+    etudiants = null;
+    if (groupe == null) {
+      etudiants = await EtdModel.find({
+        palier: palier,
+        specialite: specialite,
+        section: section,
+        //groupe: groupe,
+      });
+    } else {
+      etudiants = await EtdModel.find({
+        palier: palier,
+        specialite: specialite,
+        section: section,
+        groupe: groupe,
+      });
+    }
+    console.log(etudiants);
+    res.json(etudiants);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+app.get("/getEtdsPresent", async (req, res) => {
+  try {
+    const result = await PModel.aggregate([
+      {
+        $lookup: {
+          from: "etudiants",
+          localField: "matricule",
+          foreignField: "MatriculeEtd",
+          as: "etudiant",
+        },
+      },
+      {
+        $unwind: "$etudiant",
+      },
+      {
+        $project: {
+          _id: 0,
+          MatriculeEtd: "$matricule",
+          nom: "$etudiant.nom",
+          prenom: "$etudiant.prenom",
+        },
+      },
+    ]);
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred" });
+  }
 });
 
 // route to convertToEmbeddings a directory of images
@@ -283,134 +428,6 @@ app.post("/upload", upload.single("file"), (req, res) => {
   }
 });
 
-app.post("/postEtdsPresent", (req, res) => {
-  const data = req.body;
-  //console.log(data);
-  const newEtd = new PModel(data);
-  newEtd
-    .save()
-    .then(() => res.status(201).send("Student data added successfully"))
-    .catch((err) =>
-      res.status(500).send(`Error adding student data: ${err.message}`)
-    );
-});
-
-app.delete("/deleteEtd/:matricule", (req, res) => {
-  const { matricule } = req.params;
-  PModel.deleteOne({ matricule: matricule })
-    .then(() => res.status(204).send())
-    .catch((err) =>
-      res.status(500).send(`Error deleting student data: ${err.message}`)
-    );
-});
-
-app.get("/getEtds/:IdCreneau/:MatriculeProf", async (req, res) => {
-  const { IdCreneau, MatriculeProf } = req.params;
-  try {
-    const enseigne = await EnseigneModel.findOne({ IdCreneau, MatriculeProf });
-    if (!enseigne) {
-      return res.status(404).json({ message: "Enseigne not found" });
-    }
-
-    const { palier, specialite, section, groupe } = enseigne;
-    etudiants = null;
-    if (groupe == null) {
-      etudiants = await EtdModel.find({
-        palier: palier,
-        specialite,
-        specialite,
-        section: section,
-        //groupe: groupe,
-      });
-    } else {
-      etudiants = await EtdModel.find({
-        palier: palier,
-        specialite,
-        specialite,
-        section: section,
-        groupe: groupe,
-      });
-    }
-
-    res.json(etudiants);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
-// Assuming you have already defined your Express app, Mongoose models, and middleware
-
-app.get("/getEtdsPresent", async (req, res) => {
-  try {
-    const result = await PModel.aggregate([
-      {
-        $lookup: {
-          from: "etudiants",
-          localField: "matricule",
-          foreignField: "MatriculeEtd",
-          as: "etudiant",
-        },
-      },
-      {
-        $unwind: "$etudiant",
-      },
-      {
-        $project: {
-          _id: 0,
-          MatriculeEtd: "$matricule",
-          nom: "$etudiant.nom",
-          prenom: "$etudiant.prenom",
-        },
-      },
-    ]);
-    res.json(result);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "An error occurred" });
-  }
-});
-app.get("/getGroupedDataForGroup2", async (req, res) => {
-  try {
-    const result = await EtdModel.aggregate([
-      {
-        $lookup: {
-          from: "etudiants",
-          localField: "matricule",
-          foreignField: "MatriculeEtd",
-          as: "etudiant",
-        },
-      },
-      {
-        $unwind: {
-          path: "$etudiant",
-          preserveNullAndEmptyArrays: true,
-        },
-      },
-      {
-        $match: {
-          groupe: "2",
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          MatriculeEtd: 1,
-          nom: 1,
-          prenom: 1,
-        },
-      },
-    ]);
-
-    res.json(result);
-    //console.log(result);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "An error occurred" });
-  }
-});
-
 app.listen(3001, () => {
   console.log("Server is running");
 });
-
