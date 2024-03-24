@@ -1,12 +1,3 @@
-/* Override Bootstrap gutter variables */
-:root {
-  --bs-gutter-x: 0; /* Set the horizontal gutter to 0 */
-  --bs-gutter-y: 0; /* Set the vertical gutter to 0 */
-}
-
-/* Apply custom padding */
-/* You can adjust these values as per your requirements */
-.custom-padding {
-  padding-right: 0; /* Example custom padding */
-  padding-left: 0; /* Example custom padding */
+.bg {
+  background-color: #222831;
 }

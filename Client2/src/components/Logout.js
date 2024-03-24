@@ -12,10 +12,15 @@ const Logout = () => {
     // Remove the token from local storage
     localStorage.removeItem("token");
 
-    navigate("/login");
+    navigate("/auth");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return <div>Logging out...</div>;
+  return (
+    <div>
+      <button>logout</button>
+    </div>
+  );
 };
 
 export default Logout;

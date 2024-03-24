@@ -39,31 +39,39 @@ const Registration = () => {
       <div className="login-header">Register</div>
       <div>
         <form onSubmit={handleSubmit}>
-          <div className="form-check">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              id="profCheckbox"
-              value="prof"
-              checked={role === "prof"}
-              onChange={() => handleRoleChange("prof")}
-            />
-            <label className=" d-flex form-check-label" htmlFor="profCheckbox">
-              Prof
-            </label>
-          </div>
-          <div className="form-check">
-            <input
-              type="checkbox"
-              className="form-check-input"
-              id="adminCheckbox"
-              value="admin"
-              checked={role === "admin"}
-              onChange={() => handleRoleChange("admin")}
-            />
-            <label className="d-flex form-check-label" htmlFor="adminCheckbox">
-              Admin
-            </label>
+          <div className="d-flex">
+            <div className="form-check pe-4">
+              <input
+                type="checkbox"
+                className="form-check-input"
+                id="profCheckbox"
+                value="prof"
+                checked={role === "prof"}
+                onChange={() => handleRoleChange("prof")}
+              />
+              <label
+                className=" d-flex form-check-label"
+                htmlFor="profCheckbox"
+              >
+                Prof
+              </label>
+            </div>
+            <div className="form-check">
+              <input
+                type="checkbox"
+                className="form-check-input"
+                id="adminCheckbox"
+                value="admin"
+                checked={role === "admin"}
+                onChange={() => handleRoleChange("admin")}
+              />
+              <label
+                className="d-flex form-check-label"
+                htmlFor="adminCheckbox"
+              >
+                Admin
+              </label>
+            </div>
           </div>
 
           <input

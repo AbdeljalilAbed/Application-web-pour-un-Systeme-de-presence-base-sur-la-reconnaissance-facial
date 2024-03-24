@@ -12,6 +12,7 @@ const PModel = require("./models/presence");
 const EnseigneModel = require("./models/enseigne");
 const User = require("./models/user");
 const EmbeddingsModel = require("./models/embeddings");
+const Prof = require("./models/Profs");
 
 const process = require("process");
 const getIdCreneau = require("./utils");
@@ -75,6 +76,37 @@ app.post("/register", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/addProf", async (req, res) => {
+  try {
+    // Extract data from request body
+    const { MatriculeProf, nom, prenom } = req.body;
+
+    // Create a new professor instance
+    const newProf = new Prof({ MatriculeProf, nom, prenom });
+
+    // Save the new professor to the database
+    await newProf.save();
+
+    res.status(201).json({ message: "Professor added successfully" });
+  } catch (error) {
+    console.error("Error adding professor:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+app.delete("/removeProf/:MatriculeProf", async (req, res) => {
+  try {
+    const { MatriculeProf } = req.params;
+
+    // Remove the professor from the database
+    await Prof.deleteOne({ MatriculeProf });
+
+    res.status(200).json({ message: "Professor removed successfully" });
+  } catch (error) {
+    console.error("Error removing professor:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
