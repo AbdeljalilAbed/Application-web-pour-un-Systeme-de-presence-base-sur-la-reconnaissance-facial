@@ -109,6 +109,54 @@ app.delete("/removeProf/:MatriculeProf", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+app.delete("/removeEtd/:MatriculeEtd", async (req, res) => {
+  try {
+    const { MatriculeEtd } = req.params;
+
+    // Remove the professor from the database
+    await EtdModel.deleteOne({ MatriculeEtd });
+
+    res.status(200).json({ message: "Etudiant removed successfully" });
+  } catch (error) {
+    console.error("Error removing etudiant:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+app.post("/addEtd", async (req, res) => {
+  try {
+    // Extract data from request body
+    const {
+      palier,
+      specialite,
+      section,
+      MatriculeEtd,
+      nom,
+      prenom,
+      etat,
+      groupe,
+    } = req.body;
+
+    // Create a new professor instance
+    const newEtd = new EtdModel({
+      palier,
+      specialite,
+      section,
+      MatriculeEtd,
+      nom,
+      prenom,
+      etat,
+      groupe,
+    });
+
+    // Save the new professor to the database
+    await newEtd.save();
+
+    res.status(201).json({ message: "Etudiant added successfully" });
+  } catch (error) {
+    console.error("Error adding etudiant:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 app.post("/postEtdsPresent", (req, res) => {
   const data = req.body;

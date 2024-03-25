@@ -1,11 +1,13 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, { useState, useEffect } from "react";
-import UploadForm from "../components/UploadForm";
 import Register from "../components/Register";
 import AddProf from "../components/AddProf";
-import Logout from "../components/Logout";
 import RemoveProf from "../components/RemoveProf";
+import UploadForm from "../components/UploadForm";
+import AddEtd from "../components/AddEtd";
+import RemoveEtd from "../components/RemoveEtd";
+import Logout from "../components/Logout";
 import { jwtDecode } from "jwt-decode";
 import "./Admin.css";
 
@@ -40,8 +42,8 @@ function Admin() {
 
   const handleGestionEtudiantClick = () => {
     setColumn1Component(<UploadForm />);
-    setColumn2Component(null);
-    setColumn3Component(null);
+    setColumn2Component(<AddEtd />);
+    setColumn3Component(<RemoveEtd />);
   };
 
   const handleGestionProfsClick = () => {
@@ -56,7 +58,7 @@ function Admin() {
 
       <div className="container p-3 bg-body rounded ">
         <div className="row">
-          <div className="col">
+          <div className="col-4">
             <ul className="nav">
               <li className="nav-item">
                 {" "}
@@ -73,7 +75,7 @@ function Admin() {
               </li> */}
             </ul>
           </div>
-          <div className="col">
+          <div className="col-8">
             <ul className="nav justify-content-end nav-underline">
               <li className="nav-item">
                 <a
@@ -97,6 +99,11 @@ function Admin() {
               <li className="nav-item">
                 <a className="nav-link text-dark" aria-current="page" href="#">
                   Gestion des Rpi
+                </a>
+              </li>
+              <li className="nav-item">
+                <a className="nav-link text-dark" aria-current="page" href="#">
+                  Gestion des Emplois du temps
                 </a>
               </li>
             </ul>

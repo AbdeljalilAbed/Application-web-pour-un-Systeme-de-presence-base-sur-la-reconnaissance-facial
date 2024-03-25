@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { backendURL } from "../config";
 
-const UploadForm = () => {
+function UploadForm() {
   const [file, setFile] = useState(null);
 
   const handleFileChange = (e) => {
@@ -27,11 +27,22 @@ const UploadForm = () => {
   };
 
   return (
-    <div>
-      <input className="text-center" type="file" onChange={handleFileChange} />
-      <button onClick={handleUpload}>Upload</button>
+    <div className="border border-primary border-3 rounded p-3 mt-5">
+      <div className="login-header">Upload Etudiants</div>
+      <form>
+        <input
+          placeholder="Matricule"
+          className="login-input"
+          id="file"
+          type="file"
+          onChange={handleFileChange}
+        />
+        <button className="login-button" type="submit" onClick={handleUpload}>
+          Upload
+        </button>
+      </form>
     </div>
   );
-};
+}
 
 export default UploadForm;
