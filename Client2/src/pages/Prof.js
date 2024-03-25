@@ -3,7 +3,6 @@ import { AuthProvider } from "../components/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Table from "../components/Table";
 import History from "../components/History";
-import Filters from "../components/Filters";
 import "./Prof.css";
 import "bootstrap/dist/css/bootstrap.css";
 
@@ -47,8 +46,6 @@ function Prof() {
           </div>
         </div>
       </div>
-      <br />
-      <Filters />
       <br />
       <History />
     </AuthProvider>

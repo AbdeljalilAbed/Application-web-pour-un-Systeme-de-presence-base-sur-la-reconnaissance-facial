@@ -31,7 +31,36 @@ mongoose.connect(process.env.DB_URL + "/mydb", {
 app.get("/", (req, res) => {
   res.send("Welcome to my API"); // You can send any response you want here
 });
+app.get("/historyEtds", async (req, res) => {
+  // Retrieve selected options from query parameters
+  const { palier, specialite, section, groupe, matricule } = req.query;
+  console.log("Query Parameters:", req.query); // Log query parameters
 
+  let etudiants = null; // Initialize etudiants variable
+  try {
+    if (matricule) {
+      etudiants = await EtdModel.findOne({ MatriculeEtd: matricule });
+    } else if (groupe !== undefined && groupe !== null && groupe !== "") {
+      etudiants = await EtdModel.find({
+        palier: palier,
+        specialite: specialite,
+        section: section,
+        groupe: groupe,
+      });
+    } else {
+      etudiants = await EtdModel.find({
+        palier: palier,
+        specialite: specialite,
+        section: section,
+      });
+    }
+    console.log("Retrieved Etudiants:", etudiants); // Log retrieved etudiants
+    res.json(etudiants);
+  } catch (error) {
+    console.error("Error retrieving etudiants:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
