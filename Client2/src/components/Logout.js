@@ -1,25 +1,26 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { AuthContext } from "./AuthContext";
 import { useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.css";
 
 const Logout = () => {
   const { setToken } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  useEffect(() => {
+  const handleLogout = () => {
     setToken(null);
-
-    // Remove the token from local storage
     localStorage.removeItem("token");
-
     navigate("/auth");
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   return (
-    <div>
-      <button>logout</button>
-    </div>
+    <button
+      type="button"
+      className="btn btn-primary btn-sm"
+      onClick={handleLogout}
+    >
+      Logout
+    </button>
   );
 };
 

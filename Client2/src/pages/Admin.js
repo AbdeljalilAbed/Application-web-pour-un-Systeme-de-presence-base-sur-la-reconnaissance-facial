@@ -10,6 +10,7 @@ import RemoveEtd from "../components/RemoveEtd";
 import Logout from "../components/Logout";
 import { jwtDecode } from "jwt-decode";
 import "./Admin.css";
+import { AuthProvider } from "../components/AuthContext";
 
 function Admin() {
   const [username, setUsername] = useState("");
@@ -70,9 +71,11 @@ function Admin() {
                   User : {username}
                 </a>
               </li>
-              {/* <li className="nav-item">
-                <Logout />
-              </li> */}
+              <li className="nav-item mt-1">
+                <AuthProvider>
+                  <Logout />
+                </AuthProvider>
+              </li>
             </ul>
           </div>
           <div className="col-8">
