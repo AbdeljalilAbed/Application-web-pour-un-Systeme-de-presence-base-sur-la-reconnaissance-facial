@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import axios from "axios";
 import { backendURL } from "../config";
 
-const History = () => {
+function History() {
   const [Etds, setEtds] = useState([]);
+  const [dates, setDates] = useState([]);
+  const [isPresent, setIsPresent] = useState({});
 
   const [selectedPalier, setSelectedPalier] = useState("");
   const [selectedSpecialite, setSelectedSpecialite] = useState("");
@@ -59,12 +61,7 @@ const History = () => {
     setSelectedSection(section);
   };
 
-  // Handle form submit
   const handleSubmit = async () => {
-    // Make a GET request with selected options
-    console.log(selectedPalier);
-    console.log(selectedGroup);
-    console.log(matricule);
     try {
       const etdsResponse = await axios.get(backendURL + "/historyEtds", {
         params: {
@@ -77,14 +74,72 @@ const History = () => {
       });
       setEtds(etdsResponse.data);
 
-      // Handle response data
-      console.log("Response:", Etds);
+      const datesResponse = await axios.get(backendURL + "/getDatesByCreneau");
+      // Inside the handleSubmit function after retrieving dateValues
+      const dateValues = datesResponse.data.map((item) => item.date);
+      // Parse the date strings into Date objects
+      const sortedDates = dateValues.map(
+        (dateString) => new Date(dateString.split("-").reverse().join("-"))
+      );
+      // Sort the Date objects
+      sortedDates.sort((a, b) => a - b);
+      // Format the sorted dates back to "dd-mm-yyyy" strings
+      const sortedDateValues = sortedDates.map((date) => {
+        const day = String(date.getDate()).padStart(2, "0");
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+      });
+      // Set the sorted dates
+      setDates(sortedDateValues);
+
+      // Fetch etudiants present for each date
+      const presencePromises = dateValues.map((date) =>
+        axios.get(`${backendURL}/getHistoryPresent/${date}`)
+      );
+      const presenceData = await Promise.all(presencePromises);
+      const presenceByDate = presenceData.reduce((acc, cur, index) => {
+        acc[dateValues[index]] = cur.data;
+        return acc;
+      }, {});
+      setIsPresent(presenceByDate);
     } catch (error) {
       // Handle error
       console.error("Error:", error);
     }
   };
+  const handleCheckboxChange = (MatriculeEtd, checked, date) => {
+    const [day, month, year] = date.split("-").map(Number);
+    const today = new Date(year, month - 1, day + 1);
+    const updatedIsPresent = { ...isPresent };
 
+    if (checked) {
+      updatedIsPresent[date] = updatedIsPresent[date] || [];
+      updatedIsPresent[date].push({ MatriculeEtd });
+      axios
+        .post(backendURL + "/postEtdsPresent", {
+          matricule: MatriculeEtd,
+          date: today,
+        })
+        .then(() => {
+          setIsPresent(updatedIsPresent);
+          console.log(`Added ${MatriculeEtd} to the collection presence`);
+        })
+        .catch((err) => console.log(err));
+    } else {
+      updatedIsPresent[date] = updatedIsPresent[date].filter(
+        (item) => item.MatriculeEtd !== MatriculeEtd
+      );
+      axios
+        .delete(`${backendURL}/deleteEtdFromHistory/${MatriculeEtd}/${date}`)
+        .then(() => {
+          setIsPresent(updatedIsPresent);
+
+          console.log(`Deleted ${MatriculeEtd} from the collection presence`);
+        })
+        .catch((err) => console.log(err));
+    }
+  };
   return (
     <div className="container vh-100">
       <div className="container-fluid text-center">
@@ -184,11 +239,9 @@ const History = () => {
                   <th>Matricule</th>
                   <th>Nom</th>
                   <th>Prenom</th>
-                  <th>Date1</th>
-                  <th>Date1</th>
-                  <th>Date1</th>
-                  <th>Date1</th>
-                  <th>Date1</th>
+                  {dates.map((date, index) => (
+                    <th key={index}>{date}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -198,6 +251,27 @@ const History = () => {
                     <td>{Etd.MatriculeEtd}</td>
                     <td>{Etd.nom}</td>
                     <td>{Etd.prenom}</td>
+                    {dates.map((date, dateIndex) => (
+                      <td key={dateIndex} className="text-center">
+                        <input
+                          type="checkbox"
+                          aria-label="Checkbox for following text input"
+                          checked={
+                            isPresent[date] &&
+                            isPresent[date].some(
+                              (item) => item.MatriculeEtd === Etd.MatriculeEtd
+                            )
+                          }
+                          onChange={(e) =>
+                            handleCheckboxChange(
+                              Etd.MatriculeEtd,
+                              e.target.checked,
+                              dates[dateIndex]
+                            )
+                          }
+                        />
+                      </td>
+                    ))}
                   </tr>
                 ))}
               </tbody>
@@ -210,11 +284,9 @@ const History = () => {
                   <th>Matricule</th>
                   <th>Nom</th>
                   <th>Prenom</th>
-                  <th>Date1</th>
-                  <th>Date1</th>
-                  <th>Date1</th>
-                  <th>Date1</th>
-                  <th>Date1</th>
+                  {dates.map((date, index) => (
+                    <th key={index}>{date}</th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
@@ -223,6 +295,27 @@ const History = () => {
                   <td>{Etds.MatriculeEtd}</td>
                   <td>{Etds.nom}</td>
                   <td>{Etds.prenom}</td>
+                  {dates.map((date, dateIndex) => (
+                    <td key={dateIndex} className="text-center">
+                      <input
+                        type="checkbox"
+                        aria-label="Checkbox for following text input"
+                        checked={
+                          isPresent[date] &&
+                          isPresent[date].some(
+                            (item) => item.MatriculeEtd === Etds.MatriculeEtd
+                          )
+                        }
+                        onChange={(e) =>
+                          handleCheckboxChange(
+                            Etds.MatriculeEtd,
+                            e.target.checked,
+                            dates[dateIndex]
+                          )
+                        }
+                      />
+                    </td>
+                  ))}
                 </tr>
               </tbody>
             </table>
@@ -231,6 +324,6 @@ const History = () => {
       </div>
     </div>
   );
-};
+}
 
 export default History;

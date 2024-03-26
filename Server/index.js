@@ -13,6 +13,7 @@ const EnseigneModel = require("./models/enseigne");
 const User = require("./models/user");
 const EmbeddingsModel = require("./models/embeddings");
 const Prof = require("./models/Profs");
+const PresenceModel = require("./models/presenceHistory");
 
 const process = require("process");
 const getIdCreneau = require("./utils");
@@ -31,33 +32,32 @@ mongoose.connect(process.env.DB_URL + "/mydb", {
 app.get("/", (req, res) => {
   res.send("Welcome to my API"); // You can send any response you want here
 });
-app.get("/aggregated-presences", async (req, res) => {
-  const today = new Date(); // Get the current date and time
-  today.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
 
-  const tomorrow = new Date(today); // Create a copy of the current date
-  tomorrow.setDate(today.getDate() + 1);
-  tomorrow.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
+app.get("/getHistoryPresent/:date", async (req, res) => {
+  const { date } = req.params;
+  console.log(date);
+  //const date = "02-04-2024";
 
-  // Set the date component to tomorrow
-
-  console.log(today); // Output: Date object representing tomorrow's date
-  console.log(tomorrow); // Output: Date object representing tomorrow's date
   const currentCreneau = getIdCreneau();
-  const number = parseInt(currentCreneau, 10); // 10 specifies the decimal radix
-
+  const number = parseInt(currentCreneau, 10);
   console.log(number);
 
   try {
     const result = await PModel.aggregate([
       {
-        $match: {
-          date: { $gte: today, $lte: tomorrow },
-          creneau: number,
+        $addFields: {
+          formattedDate: {
+            $dateToString: {
+              format: "%d-%m-%Y",
+              date: "$date",
+            },
+          },
         },
       },
+      { $match: { formattedDate: date } },
       {
         $project: {
+          _id: 0,
           matricule: 1,
           date: 1,
           creneau: 1,
@@ -71,9 +71,7 @@ app.get("/aggregated-presences", async (req, res) => {
           as: "etudiant",
         },
       },
-      {
-        $unwind: "$etudiant",
-      },
+      { $unwind: { path: "$etudiant" } },
       {
         $project: {
           _id: 0,
@@ -83,13 +81,47 @@ app.get("/aggregated-presences", async (req, res) => {
         },
       },
     ]);
-
     res.json(result);
   } catch (err) {
-    console.error("Error while aggregating data:", err);
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error(err);
+    res.status(500).json({ error: "An error occurred" });
   }
 });
+
+app.get("/getDatesByCreneau", async (req, res) => {
+  const currentCreneau = getIdCreneau();
+  const number = parseInt(currentCreneau, 10); // 10 specifies the decimal radix
+
+  console.log(number);
+
+  try {
+    const dates = await PModel.aggregate([
+      {
+        $match: { creneau: number },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%d-%m-%Y", date: "$date" },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          date: "$_id",
+        },
+      },
+    ]);
+
+    console.log(dates);
+    res.json(dates);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred" });
+  }
+});
+
 app.get("/historyEtds", async (req, res) => {
   // Retrieve selected options from query parameters
   const { palier, specialite, section, groupe, matricule } = req.query;
@@ -120,6 +152,7 @@ app.get("/historyEtds", async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
@@ -249,7 +282,7 @@ app.post("/addEtd", async (req, res) => {
 app.post("/postEtdsPresent", (req, res) => {
   const data = req.body;
   //console.log(data);
-  const newEtd = new PModel(data);
+  const newEtd = new PresenceModel(data);
   newEtd
     .save()
     .then(() => res.status(201).send("Student data added successfully"))
@@ -258,6 +291,33 @@ app.post("/postEtdsPresent", (req, res) => {
     );
 });
 
+app.delete("/deleteEtdFromHistory/:matricule/:date", (req, res) => {
+  const { matricule, date } = req.params;
+  console.log(date);
+
+  const [day, month, year] = date.split("-").map(Number);
+  const today = new Date(year, month - 1, day);
+
+  today.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
+
+  const tomorrow = new Date(today); // Create a copy of the current date
+  tomorrow.setDate(today.getDate() + 1);
+  tomorrow.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
+
+  // Set the date component to tomorrow
+
+  console.log(today); // Output: Date object representing tomorrow's date
+  console.log(tomorrow); // Output: Date object representing tomorrow's date
+
+  PModel.deleteOne({
+    matricule: matricule,
+    date: { $gte: today, $lte: tomorrow },
+  })
+    .then(() => res.status(204).send())
+    .catch((err) =>
+      res.status(500).send(`Error deleting student data: ${err.message}`)
+    );
+});
 app.delete("/deleteEtd/:matricule", (req, res) => {
   const { matricule } = req.params;
   const today = new Date(); // Get the current date and time
