@@ -1,19 +1,21 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { backendURL } from "../config";
+import { jwtDecode } from "jwt-decode";
 
 function History() {
   const [Etds, setEtds] = useState([]);
   const [dates, setDates] = useState([]);
   const [isPresent, setIsPresent] = useState({});
-
   const [selectedPalier, setSelectedPalier] = useState("");
   const [selectedSpecialite, setSelectedSpecialite] = useState("");
   const [selectedSection, setSelectedSection] = useState("");
   const [selectedGroup, setSelectedGroup] = useState("");
+  const [selectedModule, setSelectedModule] = useState(""); // State for selected module
   const [matricule, setMatricule] = useState("");
   const [specialites, setSpecialites] = useState([]);
   const [sections, setSections] = useState([]);
+  const [modules, setModules] = useState([]); // State for modules
 
   // Define options for palier, specialite, and section
   const paliers = ["L1", "L2", "L3", "M1", "M2"];
@@ -21,14 +23,14 @@ function History() {
     L1: ["TRONC COMMUN"],
     L2: ["ACAD", "ISIL", "GTR"],
     L3: ["ACAD", "ISIL", "GTR"],
-    M1: ["RSD", "IL", "SII", "SSI", "BIGDATAA", "MIND", "IV", "BIOINFO", "HPC"],
-    M2: ["RSD", "IL", "SII", "SSI", "BIGDATAA", "MIND", "IV", "BIOINFO", "HPC"],
+    M1: ["RSD", "IL", "SII", "BIGDATAA", "MIND", "IV", "BIOINFO", "HPC"],
+    M2: ["RSD", "IL", "SII", "BIGDATAA", "MIND", "IV", "BIOINFO", "HPC"],
   };
   const sectionsBySpecialite = {
     "TRONC COMMUN": ["A", "B", "C", "D", "E", "F"],
     ACAD: ["A", "B", "C"],
     ISIL: ["A", "B"],
-    RSd: ["A"],
+    RSD: ["A"],
     IL: ["A"],
     SII: ["A"],
     BIGDATAA: ["A"],
@@ -37,6 +39,19 @@ function History() {
     BIOINFO: ["A"],
     HPC: ["A"],
     // Add sections for other specialities
+  };
+  const modulesBySpecialite = {
+    "TRONC COMMUN": ["MATH", "PHYSIQUE", "CHIMIE", "INFO", "TIC", "ANGLAIS"],
+    ACAD: ["PWEB", "TP PWEB", "A/C SERV", "TP A/C SERV", "DOC STR"],
+    ISIL: ["PWEB", "TP PWEB", "A/C SERV", "TP A/C SERV", "DOC STR"],
+    RSd: ["A"],
+    IL: ["A"],
+    SII: ["A"],
+    BIGDATAA: ["A"],
+    MIND: ["A"],
+    IV: ["ANG2", "FD", "AD", "VA", "RES", "CGOC", "CJRV", "AA"],
+    BIOINFO: ["A"],
+    HPC: ["A"],
   };
 
   // Handle palier change
@@ -53,6 +68,7 @@ function History() {
     setSelectedSpecialite(specialite);
     setSelectedSection(""); // Reset selected section
     setSections(sectionsBySpecialite[specialite] || []);
+    setModules(modulesBySpecialite[specialite] || []); // Set modules based on selected specialite
   };
 
   // Handle section change
@@ -61,8 +77,29 @@ function History() {
     setSelectedSection(section);
   };
 
+  // Handle module change
+  const handleModuleChange = (e) => {
+    const module = e.target.value;
+    setSelectedModule(module);
+  };
   const handleSubmit = async () => {
     try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        console.error("Token not found in local storage");
+        return;
+      }
+      // Decode the JWT token
+      const decodedToken = jwtDecode(token);
+      if (decodedToken) {
+        // Extract the desired field (e.g., 'userId') into a variable
+        const username = decodedToken.username;
+        // Now you can use the 'userId' variable for further processing
+        console.log("User:", username);
+      } else {
+        console.error("Failed to decode JWT token");
+      }
       const etdsResponse = await axios.get(backendURL + "/historyEtds", {
         params: {
           palier: selectedPalier,
@@ -74,7 +111,20 @@ function History() {
       });
       setEtds(etdsResponse.data);
 
-      const datesResponse = await axios.get(backendURL + "/getDatesByCreneau");
+      const datesResponse = await axios.get(
+        `${backendURL}/getDatesByCreneau/${decodedToken.username}`,
+        {
+          params: {
+            palier: selectedPalier,
+            specialite: selectedSpecialite,
+            section: selectedSection,
+            module: selectedModule,
+
+            groupe: selectedGroup,
+            matricule: matricule,
+          },
+        }
+      );
       // Inside the handleSubmit function after retrieving dateValues
       const dateValues = datesResponse.data.map((item) => item.date);
       // Parse the date strings into Date objects
@@ -95,7 +145,19 @@ function History() {
 
       // Fetch etudiants present for each date
       const presencePromises = dateValues.map((date) =>
-        axios.get(`${backendURL}/getHistoryPresent/${date}`)
+        axios.get(
+          `${backendURL}/getHistoryPresent/${date}/${decodedToken.username}`,
+          {
+            params: {
+              palier: selectedPalier,
+              specialite: selectedSpecialite,
+              section: selectedSection,
+              module: selectedModule,
+              groupe: selectedGroup,
+              matricule: matricule,
+            },
+          }
+        )
       );
       const presenceData = await Promise.all(presencePromises);
       const presenceByDate = presenceData.reduce((acc, cur, index) => {
@@ -217,9 +279,27 @@ function History() {
             />
           </div>
           <div className="col-2">
+            <select
+              className="form-select"
+              aria-label="Module"
+              value={selectedModule}
+              onChange={handleModuleChange}
+              disabled={!selectedSpecialite}
+            >
+              <option value="">Module</option>
+              {modules.map((module) => (
+                <option key={module} value={module}>
+                  {module}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="row mt-3">
+          <div className="col">
             <button
               type="button"
-              className="btn btn-secondary"
+              className="btn btn-secondary "
               onClick={handleSubmit}
             >
               Submit

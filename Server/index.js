@@ -33,16 +33,43 @@ app.get("/", (req, res) => {
   res.send("Welcome to my API"); // You can send any response you want here
 });
 
-app.get("/getHistoryPresent/:date", async (req, res) => {
-  const { date } = req.params;
-  console.log(date);
-  //const date = "02-04-2024";
+app.get("/getHistoryPresent/:date/:username", async (req, res) => {
+  const { username } = req.params;
+  console.log(username);
 
-  const currentCreneau = getIdCreneau();
-  const number = parseInt(currentCreneau, 10);
-  console.log(number);
+  const { date } = req.params;
+  const { palier, specialite, section, module } = req.query;
 
   try {
+    const user = await User.findOne({ username: username.toString() });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const MatriculeProf = user.matricule;
+    console.log(MatriculeProf);
+    const creneau = await EnseigneModel.aggregate([
+      {
+        $match: {
+          MatriculeProf: MatriculeProf,
+          section: section,
+          module: module,
+          palier: palier,
+          specialite: specialite,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          IdCreneau: 1,
+        },
+      },
+    ]);
+
+    const currentCreneau = creneau[0].IdCreneau;
+    console.log(currentCreneau);
+    const number = parseInt(currentCreneau, 10); // 10 specifies the decimal radix
+
     const result = await PModel.aggregate([
       {
         $addFields: {
@@ -88,13 +115,43 @@ app.get("/getHistoryPresent/:date", async (req, res) => {
   }
 });
 
-app.get("/getDatesByCreneau", async (req, res) => {
-  const currentCreneau = getIdCreneau();
-  const number = parseInt(currentCreneau, 10); // 10 specifies the decimal radix
+app.get("/getDatesByCreneau/:username", async (req, res) => {
+  const { username } = req.params;
+  console.log(username);
 
-  console.log(number);
+  const { palier, specialite, section, module, groupe } = req.query;
 
   try {
+    const user = await User.findOne({ username: username.toString() });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const MatriculeProf = user.matricule;
+    console.log(MatriculeProf);
+
+    const creneau = await EnseigneModel.aggregate([
+      {
+        $match: {
+          MatriculeProf: MatriculeProf,
+          section: section,
+          module: module,
+          palier: palier,
+          specialite: specialite,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          IdCreneau: 1,
+        },
+      },
+    ]);
+
+    const currentCreneau = creneau[0].IdCreneau;
+    console.log(currentCreneau);
+    const number = parseInt(currentCreneau, 10); // 10 specifies the decimal radix
+
     const dates = await PModel.aggregate([
       {
         $match: { creneau: number },
