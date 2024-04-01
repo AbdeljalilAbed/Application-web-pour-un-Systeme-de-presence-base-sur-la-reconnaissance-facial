@@ -11,12 +11,14 @@ import Logout from "../components/Logout";
 import { jwtDecode } from "jwt-decode";
 import "./Admin.css";
 import { AuthProvider } from "../components/AuthContext";
+import UploadImages from "../components/UploadImages";
 
 function Admin() {
   const [username, setUsername] = useState("");
   const [column1Component, setColumn1Component] = useState(null);
   const [column2Component, setColumn2Component] = useState(null);
   const [column3Component, setColumn3Component] = useState(null);
+  const [column4Component, setColumn4Component] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -45,12 +47,15 @@ function Admin() {
     setColumn1Component(<UploadForm />);
     setColumn2Component(<AddEtd />);
     setColumn3Component(<RemoveEtd />);
+    setColumn4Component(<UploadImages />);
   };
 
   const handleGestionProfsClick = () => {
     setColumn1Component(<Register />);
     setColumn2Component(<AddProf />);
     setColumn3Component(<RemoveProf />);
+    setColumn4Component(null);
+
   };
 
   return (
@@ -123,6 +128,11 @@ function Admin() {
           </div>
           <div className="col  p-3 m-5 bg-body rounded pt-5">
             {column3Component}
+          </div>
+        </div>
+        <div className="row">
+          <div >
+            {column4Component}
           </div>
         </div>
       </div>

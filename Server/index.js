@@ -3,6 +3,9 @@ const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
+const { spawn } = require("child_process");
+require("dotenv").config();
+
 const multer = require("multer");
 const xlsx = require("xlsx");
 
@@ -31,6 +34,53 @@ mongoose.connect(process.env.DB_URL + "/mydb", {
 
 app.get("/", (req, res) => {
   res.send("Welcome to my API");
+});
+const imageUploadPath = "C:/Users/TRETEC/Desktop/WebappV2/webapp/Server/archive";
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, imageUploadPath);
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname);
+  },
+});
+
+const imageUpload = multer({ storage: storage });
+
+// Remove the res.send() inside the /images-upload route
+app.post("/images-upload", imageUpload.array("images"), (req, res) => {
+  // Handle the uploaded files
+  if (req.files.length === 0) {
+    return res.status(400).send("No files were uploaded.");
+  }
+
+  const uploadedFiles = req.files.map((file) => file.filename);
+  /*   res.send(
+    `Uploaded ${uploadedFiles.length} files: ${uploadedFiles.join(", ")}`
+  );
+ */
+  var dataToSend;
+  // spawn new child process to call the python script
+  const python = spawn("python", [
+    "arrayFromImages.py",
+    process.env.IMG_PATH,
+    process.env.DB_URL,
+    process.env.DETECTION_MODEL_PATH,    
+    process.env.RECOGNITION_MODEL_PATH
+
+  ]);
+  // collect data from script
+  python.stdout.on("data", function (data) {
+    console.log("Pipe data from python script ...");
+    dataToSend = data.toString();
+  });
+  // in close event we are sure that stream from child process is closed
+  python.on("close", (code) => {
+    console.log(`child process close all stdio with code ${code}`);
+    // send data to browser
+    res.send(dataToSend);
+  });
 });
 
 //LOGIN ENDPOINT
