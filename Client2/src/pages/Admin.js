@@ -5,6 +5,7 @@ import Register from "../components/Register";
 import AddProf from "../components/AddProf";
 import RemoveProf from "../components/RemoveProf";
 import UploadForm from "../components/UploadForm";
+import UploadEdt from "../components/UploadEdt";
 import AddEtd from "../components/AddEtd";
 import RemoveEtd from "../components/RemoveEtd";
 import Logout from "../components/Logout";
@@ -54,6 +55,14 @@ function Admin() {
     setColumn1Component(<Register />);
     setColumn2Component(<AddProf />);
     setColumn3Component(<RemoveProf />);
+    setColumn4Component(null);
+
+  };
+
+  const handleGestionEdtClick = () => {
+    setColumn1Component(<UploadEdt />);
+    setColumn2Component(null);
+    setColumn3Component(null);
     setColumn4Component(null);
 
   };
@@ -110,8 +119,8 @@ function Admin() {
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link text-dark" aria-current="page" href="#">
-                  Gestion des Emplois du temps
+                <a className="nav-link text-dark" aria-current="page" href="#" onClick={handleGestionEdtClick}>
+                  Gestion des emploi du temps
                 </a>
               </li>
             </ul>
@@ -131,7 +140,7 @@ function Admin() {
           </div>
         </div>
         <div className="row">
-          <div >
+          <div>
             {column4Component}
           </div>
         </div>

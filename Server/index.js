@@ -35,6 +35,7 @@ mongoose.connect(process.env.DB_URL + "/mydb", {
 app.get("/", (req, res) => {
   res.send("Welcome to my API");
 });
+
 const imageUploadPath = "C:/Users/TRETEC/Desktop/WebappV2/webapp/Server/archive";
 
 const storage = multer.diskStorage({
@@ -81,6 +82,67 @@ app.post("/images-upload", imageUpload.array("images"), (req, res) => {
     // send data to browser
     res.send(dataToSend);
   });
+});
+
+app.post('/edt-upload', upload.single('file'), (req, res) => {
+    const palier = req.body.palier;
+    const specialite = req.body.specialite;
+    const section = req.body.section;
+
+    let dataToSend;
+
+    // Spawn a new child process to call the Python script
+    const python = spawn('python', ['ExcelToEdt.py', req.file.path, section, palier, specialite]);
+
+    // Collect data from script
+    python.stdout.on('data', function (data) {
+        console.log('Pipe data from python script ...');
+        dataToSend = data.toString();
+    });
+
+    // In close event we are sure that stream from child process is closed
+    python.on('close', (code) => {
+        console.log(`Child process close all stdio with code ${code}`);
+        // Send data to browser
+        res.send(dataToSend);
+    });
+});
+// Route for uploading Excel file
+app.post("/upload", upload.single("file"), (req, res) => {
+  // Parse the Excel file
+  const workbook = xlsx.readFile(req.file.path);
+  const sheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[sheetName];
+  const data = xlsx.utils.sheet_to_json(sheet);
+
+  // Map Excel columns to MongoDB fields
+  const fieldMap = {
+    palier: "palier",
+    specialite: "specialite",
+    section: "section",
+    matricule: "MatriculeEtd",
+    nom: "nom",
+    prenom: "prenom",
+    etat: "etat",
+    groupe: "groupe",
+  };
+
+  const mappedData = data.map((row) => {
+    const mappedRow = {};
+    for (const [excelField, mongoField] of Object.entries(fieldMap)) {
+      mappedRow[mongoField] = row[excelField];
+    }
+    return mappedRow;
+  });
+  //console.log(mappedData);
+  try {
+    EtdModel.insertMany(mappedData);
+    EtdModel.updateMany({}, { $unset: { __v: 0 } });
+    res.send("Data inserted succesfully");
+  } catch (error) {
+    console.log(err);
+    res.status(500).send(`Failed ti insert data in mongoDB`);
+  }
 });
 
 //LOGIN ENDPOINT
@@ -770,43 +832,6 @@ app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
       });
   }
 }); */
-// Route for uploading Excel file
-app.post("/upload", upload.single("file"), (req, res) => {
-  // Parse the Excel file
-  const workbook = xlsx.readFile(req.file.path);
-  const sheetName = workbook.SheetNames[0];
-  const sheet = workbook.Sheets[sheetName];
-  const data = xlsx.utils.sheet_to_json(sheet);
-
-  // Map Excel columns to MongoDB fields
-  const fieldMap = {
-    palier: "palier",
-    specialite: "specialite",
-    section: "section",
-    matricule: "MatriculeEtd",
-    nom: "nom",
-    prenom: "prenom",
-    etat: "etat",
-    groupe: "groupe",
-  };
-
-  const mappedData = data.map((row) => {
-    const mappedRow = {};
-    for (const [excelField, mongoField] of Object.entries(fieldMap)) {
-      mappedRow[mongoField] = row[excelField];
-    }
-    return mappedRow;
-  });
-  //console.log(mappedData);
-  try {
-    EtdModel.insertMany(mappedData);
-    EtdModel.updateMany({}, { $unset: { __v: 0 } });
-    res.send("Data inserted succesfully");
-  } catch (error) {
-    console.log(err);
-    res.status(500).send(`Failed ti insert data in mongoDB`);
-  }
-});
 
 app.listen(3001, () => {
   console.log("Server is running");
