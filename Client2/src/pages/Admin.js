@@ -7,7 +7,9 @@ import RemoveProf from "../components/RemoveProf";
 import UploadForm from "../components/UploadForm";
 import UploadEdt from "../components/UploadEdt";
 import AddEtd from "../components/AddEtd";
+import AddEdt from "../components/AddEdt";
 import RemoveEtd from "../components/RemoveEtd";
+import RemoveEdt from "../components/RemoveEdt";
 import Logout from "../components/Logout";
 import { jwtDecode } from "jwt-decode";
 import "./Admin.css";
@@ -61,8 +63,8 @@ function Admin() {
 
   const handleGestionEdtClick = () => {
     setColumn1Component(<UploadEdt />);
-    setColumn2Component(null);
-    setColumn3Component(null);
+    setColumn2Component(<RemoveEdt />);
+    setColumn3Component(<AddEdt />);
     setColumn4Component(null);
 
   };

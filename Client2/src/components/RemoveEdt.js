@@ -3,30 +3,16 @@ import axios from "axios";
 import { backendURL } from "../config";
 
 function UploadEdt() {
-  const [file, setFile] = useState(null);
   const [palier, setPalier] = useState("");
   const [specialite, setSpecialite] = useState("");
-  const [section, setSection] = useState("");
+  const [section, setSection] = useState("")
 
-
-  const handleFileChange = (e) => {
-    setFile(e.target.files[0]);
-  };
-
-  const handleUpload = () => {
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("palier", palier);
-    formData.append("specialite", specialite);
-    formData.append("section", section);
-
+  const handleUpload = async () => {
     try {
-      axios.post(backendURL + "/edt-upload", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-      alert("Data uploaded successfully");
+    await axios.delete(
+        `${backendURL}/removeEdt/${palier}/${specialite}/${section}`
+      );      
+    alert("Data uploaded successfully");
     } catch (err) {
       console.error(err);
       alert("Failed to upload data");
@@ -35,7 +21,7 @@ function UploadEdt() {
 
   return (
     <div className="border border-primary border-3 rounded p-3">
-      <div className="login-header">Upload Edt</div>
+      <div className="login-header">Remove Edt</div>
       <form>
             <input
             value={palier}
@@ -61,14 +47,9 @@ function UploadEdt() {
             id="Section"
           />
 
-        <input
-          className="login-input"
-          id="file"
-          type="file"
-          onChange={handleFileChange}
-        />
+        
         <button className="login-button" type="submit" onClick={handleUpload}>
-          Upload
+          Remove
         </button>
       </form>
     </div>

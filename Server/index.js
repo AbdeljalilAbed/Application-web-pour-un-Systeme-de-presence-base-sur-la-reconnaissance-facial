@@ -625,6 +625,54 @@ app.delete("/removeEtd/:MatriculeEtd", async (req, res) => {
   }
 });
 
+app.delete("/removeEdt/:palier/:specialite/:section", async (req, res) => {
+  try {
+    const { palier,specialite,section } = req.params;
+    console.log(palier)
+
+    await EnseigneModel.deleteMany({ palier,specialite,section });
+
+    res.status(200).json({ message: "Emploi du temps removed successfully" });
+  } catch (error) {
+    console.error("Error removing edt:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.post("/addEdt", async (req, res) => {
+  try {
+    const {
+      palier,
+      specialite,
+      section,
+      MatriculeProf,
+      salle,
+      module,
+      IdCreneau,
+      groupe,
+    } = req.body;
+
+    const newEnseigne = new EnseigneModel({
+      palier,
+      specialite,
+      section,
+      MatriculeProf,
+      salle,
+      module,
+      IdCreneau,
+      groupe,
+    });
+
+    await newEnseigne.save();
+
+    res.status(201).json({ message: "Edt added successfully" });
+  } catch (error) {
+    console.error("Error adding etd:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+
 app.post("/convertToEmbeddings", upload.array("images"), (req, res) => {
   var spawn = require("child_process").spawn;
   var processe = spawn("python", [
