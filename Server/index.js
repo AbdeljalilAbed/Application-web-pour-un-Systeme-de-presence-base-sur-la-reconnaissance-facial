@@ -31,6 +31,65 @@ mongoose.connect(process.env.DB_URL + "/mydb", {
 app.get("/", (req, res) => {
   res.send("Welcome to my API"); // You can send any response you want here
 });
+app.get("/aggregated-presences", async (req, res) => {
+  const today = new Date(); // Get the current date and time
+  today.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
+
+  const tomorrow = new Date(today); // Create a copy of the current date
+  tomorrow.setDate(today.getDate() + 1);
+  tomorrow.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
+
+  // Set the date component to tomorrow
+
+  console.log(today); // Output: Date object representing tomorrow's date
+  console.log(tomorrow); // Output: Date object representing tomorrow's date
+  const currentCreneau = getIdCreneau();
+  const number = parseInt(currentCreneau, 10); // 10 specifies the decimal radix
+
+  console.log(number);
+
+  try {
+    const result = await PModel.aggregate([
+      {
+        $match: {
+          date: { $gte: today, $lte: tomorrow },
+          creneau: number,
+        },
+      },
+      {
+        $project: {
+          matricule: 1,
+          date: 1,
+          creneau: 1,
+        },
+      },
+      {
+        $lookup: {
+          from: "etudiants",
+          localField: "matricule",
+          foreignField: "MatriculeEtd",
+          as: "etudiant",
+        },
+      },
+      {
+        $unwind: "$etudiant",
+      },
+      {
+        $project: {
+          _id: 0,
+          MatriculeEtd: "$matricule",
+          nom: "$etudiant.nom",
+          prenom: "$etudiant.prenom",
+        },
+      },
+    ]);
+
+    res.json(result);
+  } catch (err) {
+    console.error("Error while aggregating data:", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 app.get("/historyEtds", async (req, res) => {
   // Retrieve selected options from query parameters
   const { palier, specialite, section, groupe, matricule } = req.query;
@@ -201,7 +260,22 @@ app.post("/postEtdsPresent", (req, res) => {
 
 app.delete("/deleteEtd/:matricule", (req, res) => {
   const { matricule } = req.params;
-  PModel.deleteOne({ matricule: matricule })
+  const today = new Date(); // Get the current date and time
+  today.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
+
+  const tomorrow = new Date(today); // Create a copy of the current date
+  tomorrow.setDate(today.getDate() + 1);
+  tomorrow.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
+
+  // Set the date component to tomorrow
+
+  console.log(today); // Output: Date object representing tomorrow's date
+  console.log(tomorrow); // Output: Date object representing tomorrow's date
+
+  PModel.deleteOne({
+    matricule: matricule,
+    date: { $gte: today, $lte: tomorrow },
+  })
     .then(() => res.status(204).send())
     .catch((err) =>
       res.status(500).send(`Error deleting student data: ${err.message}`)
@@ -254,8 +328,37 @@ app.get("/getEtds/:username", async (req, res) => {
   }
 });
 app.get("/getEtdsPresent", async (req, res) => {
+  const today = new Date(); // Get the current date and time
+  today.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
+
+  const tomorrow = new Date(today); // Create a copy of the current date
+  tomorrow.setDate(today.getDate() + 1);
+  tomorrow.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
+
+  // Set the date component to tomorrow
+
+  console.log(today); // Output: Date object representing tomorrow's date
+  console.log(tomorrow); // Output: Date object representing tomorrow's date
+  const currentCreneau = getIdCreneau();
+  const number = parseInt(currentCreneau, 10); // 10 specifies the decimal radix
+
+  console.log(number);
+
   try {
     const result = await PModel.aggregate([
+      {
+        $match: {
+          date: { $gte: today, $lte: tomorrow },
+          creneau: number,
+        },
+      },
+      {
+        $project: {
+          matricule: 1,
+          date: 1,
+          creneau: 1,
+        },
+      },
       {
         $lookup: {
           from: "etudiants",
