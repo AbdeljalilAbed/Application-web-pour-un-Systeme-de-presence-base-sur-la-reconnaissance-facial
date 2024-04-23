@@ -30,9 +30,258 @@ mongoose.connect(process.env.DB_URL + "/mydb", {
 });
 
 app.get("/", (req, res) => {
-  res.send("Welcome to my API"); // You can send any response you want here
+  res.send("Welcome to my API");
 });
 
+//LOGIN ENDPOINT
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  const user = await User.findOne({ username });
+
+  if (!user) return res.status(400).send("Invalid username or password.");
+
+  const validPassword = await bcrypt.compare(password, user.password);
+
+  if (!validPassword)
+    return res.status(400).send("Invalid username or password.");
+
+  const token = jwt.sign({ username: user.username }, "secretKey");
+
+  res.send({ token, role: user.role, matricule: user.matricule });
+});
+
+//REGISTER ENDPOINT
+app.post("/register", async (req, res) => {
+  try {
+    const { username, password, matricule, role } = req.body;
+
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ error: "Username already exists." });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = new User({
+      username,
+      password: hashedPassword,
+      matricule,
+      role,
+    });
+
+    const savedUser = await user.save();
+    res.json({
+      message: "User registered successfully",
+      userId: savedUser._id,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+//GET DEFAULT LIST ETUDIANTS WITH CURRENT CRENEAU AND USERNAME
+app.get("/getEtds/:username", async (req, res) => {
+  const { username } = req.params;
+  console.log(username);
+
+  const user = await User.findOne({ username: username.toString() });
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  const MatriculeProf = user.matricule;
+  console.log(MatriculeProf);
+
+  try {
+    const IdCreneau = getIdCreneau();
+    console.log(IdCreneau);
+    const enseigne = await EnseigneModel.findOne({ IdCreneau, MatriculeProf });
+    if (!enseigne) {
+      return res.status(404).json({ message: "Enseigne not found" });
+    }
+
+    const { palier, specialite, section, groupe } = enseigne;
+    console.log(palier, specialite, section, groupe);
+    etudiants = null;
+    if (groupe == null) {
+      etudiants = await EtdModel.find({
+        palier: palier,
+        specialite: specialite,
+        section: section,
+      });
+    } else {
+      etudiants = await EtdModel.find({
+        palier: palier,
+        specialite: specialite,
+        section: section,
+        groupe: groupe,
+      });
+    }
+    console.log(etudiants);
+    res.json(etudiants);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+// GET LIST OF ATTENDANCE OF CURRENT CRENEAU
+app.get("/getEtdsPresent", async (req, res) => {
+  const today = new Date();
+  today.setHours(1, 0, 0, 0);
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  tomorrow.setHours(1, 0, 0, 0);
+
+  console.log(today);
+  console.log(tomorrow);
+  const currentCreneau = getIdCreneau();
+  const number = parseInt(currentCreneau, 10);
+  console.log(number);
+
+  try {
+    const result = await PModel.aggregate([
+      {
+        $match: {
+          date: { $gte: today, $lte: tomorrow },
+          creneau: number,
+        },
+      },
+      {
+        $project: {
+          matricule: 1,
+          date: 1,
+          creneau: 1,
+        },
+      },
+      {
+        $lookup: {
+          from: "etudiants",
+          localField: "matricule",
+          foreignField: "MatriculeEtd",
+          as: "etudiant",
+        },
+      },
+      {
+        $unwind: "$etudiant",
+      },
+      {
+        $project: {
+          _id: 0,
+          MatriculeEtd: "$matricule",
+          nom: "$etudiant.nom",
+          prenom: "$etudiant.prenom",
+        },
+      },
+    ]);
+    res.json(result);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred" });
+  }
+});
+
+//GET LIST ETUDIANTS FOR HISTORY OF ATTENDANCE
+app.get("/historyEtds", async (req, res) => {
+  const { palier, specialite, section, groupe, matricule } = req.query;
+  console.log("Query Parameters:", req.query);
+
+  let etudiants = null;
+  try {
+    if (matricule) {
+      etudiants = await EtdModel.findOne({ MatriculeEtd: matricule });
+    } else if (groupe !== undefined && groupe !== null && groupe !== "") {
+      etudiants = await EtdModel.find({
+        palier: palier,
+        specialite: specialite,
+        section: section,
+        groupe: groupe,
+      });
+    } else {
+      etudiants = await EtdModel.find({
+        palier: palier,
+        specialite: specialite,
+        section: section,
+      });
+    }
+    console.log("Retrieved Etudiants:", etudiants);
+    res.json(etudiants);
+  } catch (error) {
+    console.error("Error retrieving etudiants:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+//GET DATES OF ATTENDANCES
+app.get("/getDatesByCreneau/:username", async (req, res) => {
+  const { username } = req.params;
+  console.log(username);
+
+  const { palier, specialite, section, module, groupe } = req.query;
+
+  try {
+    const user = await User.findOne({ username: username.toString() });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const MatriculeProf = user.matricule;
+    console.log(MatriculeProf);
+
+    const creneau = await EnseigneModel.aggregate([
+      {
+        $match: {
+          MatriculeProf: MatriculeProf,
+          section: section,
+          module: module,
+          palier: palier,
+          specialite: specialite,
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          IdCreneau: 1,
+        },
+      },
+    ]);
+
+    const currentCreneau = creneau[0].IdCreneau;
+    console.log(currentCreneau);
+    const number = parseInt(currentCreneau, 10);
+
+    const dates = await PModel.aggregate([
+      {
+        $match: { creneau: number },
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%d-%m-%Y", date: "$date" },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          date: "$_id",
+        },
+      },
+    ]);
+
+    console.log(dates);
+    res.json(dates);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "An error occurred" });
+  }
+});
+
+//GET HISTORY OF ATTENDANCE BY DATES
 app.get("/getHistoryPresent/:date/:username", async (req, res) => {
   const { username } = req.params;
   console.log(username);
@@ -68,7 +317,7 @@ app.get("/getHistoryPresent/:date/:username", async (req, res) => {
 
     const currentCreneau = creneau[0].IdCreneau;
     console.log(currentCreneau);
-    const number = parseInt(currentCreneau, 10); // 10 specifies the decimal radix
+    const number = parseInt(currentCreneau, 10);
 
     const result = await PModel.aggregate([
       {
@@ -115,230 +364,9 @@ app.get("/getHistoryPresent/:date/:username", async (req, res) => {
   }
 });
 
-app.get("/getDatesByCreneau/:username", async (req, res) => {
-  const { username } = req.params;
-  console.log(username);
-
-  const { palier, specialite, section, module, groupe } = req.query;
-
-  try {
-    const user = await User.findOne({ username: username.toString() });
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
-
-    const MatriculeProf = user.matricule;
-    console.log(MatriculeProf);
-
-    const creneau = await EnseigneModel.aggregate([
-      {
-        $match: {
-          MatriculeProf: MatriculeProf,
-          section: section,
-          module: module,
-          palier: palier,
-          specialite: specialite,
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          IdCreneau: 1,
-        },
-      },
-    ]);
-
-    const currentCreneau = creneau[0].IdCreneau;
-    console.log(currentCreneau);
-    const number = parseInt(currentCreneau, 10); // 10 specifies the decimal radix
-
-    const dates = await PModel.aggregate([
-      {
-        $match: { creneau: number },
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: "%d-%m-%Y", date: "$date" },
-          },
-        },
-      },
-      {
-        $project: {
-          _id: 0,
-          date: "$_id",
-        },
-      },
-    ]);
-
-    console.log(dates);
-    res.json(dates);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "An error occurred" });
-  }
-});
-
-app.get("/historyEtds", async (req, res) => {
-  // Retrieve selected options from query parameters
-  const { palier, specialite, section, groupe, matricule } = req.query;
-  console.log("Query Parameters:", req.query); // Log query parameters
-
-  let etudiants = null; // Initialize etudiants variable
-  try {
-    if (matricule) {
-      etudiants = await EtdModel.findOne({ MatriculeEtd: matricule });
-    } else if (groupe !== undefined && groupe !== null && groupe !== "") {
-      etudiants = await EtdModel.find({
-        palier: palier,
-        specialite: specialite,
-        section: section,
-        groupe: groupe,
-      });
-    } else {
-      etudiants = await EtdModel.find({
-        palier: palier,
-        specialite: specialite,
-        section: section,
-      });
-    }
-    console.log("Retrieved Etudiants:", etudiants); // Log retrieved etudiants
-    res.json(etudiants);
-  } catch (error) {
-    console.error("Error retrieving etudiants:", error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-});
-
-app.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-
-  const user = await User.findOne({ username });
-
-  if (!user) return res.status(400).send("Invalid username or password.");
-
-  const validPassword = await bcrypt.compare(password, user.password);
-
-  if (!validPassword)
-    return res.status(400).send("Invalid username or password.");
-
-  const token = jwt.sign({ username: user.username }, "secretKey");
-
-  res.send({ token, role: user.role, matricule: user.matricule });
-});
-
-app.post("/register", async (req, res) => {
-  try {
-    const { username, password, matricule, role } = req.body;
-
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ error: "Username already exists." });
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const user = new User({
-      username,
-      password: hashedPassword,
-      matricule,
-      role,
-    });
-
-    const savedUser = await user.save();
-    res.json({
-      message: "User registered successfully",
-      userId: savedUser._id,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-app.post("/addProf", async (req, res) => {
-  try {
-    // Extract data from request body
-    const { MatriculeProf, nom, prenom } = req.body;
-
-    // Create a new professor instance
-    const newProf = new Prof({ MatriculeProf, nom, prenom });
-
-    // Save the new professor to the database
-    await newProf.save();
-
-    res.status(201).json({ message: "Professor added successfully" });
-  } catch (error) {
-    console.error("Error adding professor:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-app.delete("/removeProf/:MatriculeProf", async (req, res) => {
-  try {
-    const { MatriculeProf } = req.params;
-
-    // Remove the professor from the database
-    await Prof.deleteOne({ MatriculeProf });
-
-    res.status(200).json({ message: "Professor removed successfully" });
-  } catch (error) {
-    console.error("Error removing professor:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-app.delete("/removeEtd/:MatriculeEtd", async (req, res) => {
-  try {
-    const { MatriculeEtd } = req.params;
-
-    // Remove the professor from the database
-    await EtdModel.deleteOne({ MatriculeEtd });
-
-    res.status(200).json({ message: "Etudiant removed successfully" });
-  } catch (error) {
-    console.error("Error removing etudiant:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-app.post("/addEtd", async (req, res) => {
-  try {
-    // Extract data from request body
-    const {
-      palier,
-      specialite,
-      section,
-      MatriculeEtd,
-      nom,
-      prenom,
-      etat,
-      groupe,
-    } = req.body;
-
-    // Create a new professor instance
-    const newEtd = new EtdModel({
-      palier,
-      specialite,
-      section,
-      MatriculeEtd,
-      nom,
-      prenom,
-      etat,
-      groupe,
-    });
-
-    // Save the new professor to the database
-    await newEtd.save();
-
-    res.status(201).json({ message: "Etudiant added successfully" });
-  } catch (error) {
-    console.error("Error adding etudiant:", error);
-    res.status(500).json({ message: "Internal server error" });
-  }
-});
-
+//ADD PRESENCE OF AN ETUDIANT
 app.post("/postEtdsPresent", (req, res) => {
   const data = req.body;
-  //console.log(data);
   const newEtd = new PModel(data);
   newEtd
     .save()
@@ -347,6 +375,31 @@ app.post("/postEtdsPresent", (req, res) => {
       res.status(500).send(`Error adding student data: ${err.message}`)
     );
 });
+
+//DELETE PRESENCE OF AN ETUDIANT
+app.delete("/deleteEtd/:matricule", (req, res) => {
+  const { matricule } = req.params;
+  const today = new Date();
+  today.setHours(1, 0, 0, 0);
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+  tomorrow.setHours(1, 0, 0, 0);
+
+  console.log(today);
+  console.log(tomorrow);
+
+  PModel.deleteOne({
+    matricule: matricule,
+    date: { $gte: today, $lte: tomorrow },
+  })
+    .then(() => res.status(204).send())
+    .catch((err) =>
+      res.status(500).send(`Error deleting student data: ${err.message}`)
+    );
+});
+
+//ADD PRESENCE FROM HISTORY
 app.post("/postEtdsPresentFromHistory", (req, res) => {
   const data = req.body;
   //console.log(data);
@@ -359,6 +412,7 @@ app.post("/postEtdsPresentFromHistory", (req, res) => {
     );
 });
 
+//DELETE PRESENCE FROM HISTORY
 app.delete("/deleteEtdFromHistory/:matricule/:date", (req, res) => {
   const { matricule, date } = req.params;
   console.log(date);
@@ -366,39 +420,14 @@ app.delete("/deleteEtdFromHistory/:matricule/:date", (req, res) => {
   const [day, month, year] = date.split("-").map(Number);
   const today = new Date(year, month - 1, day);
 
-  today.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
+  today.setHours(1, 0, 0, 0);
 
-  const tomorrow = new Date(today); // Create a copy of the current date
+  const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
-  tomorrow.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
+  tomorrow.setHours(1, 0, 0, 0);
 
-  // Set the date component to tomorrow
-
-  console.log(today); // Output: Date object representing tomorrow's date
-  console.log(tomorrow); // Output: Date object representing tomorrow's date
-
-  PModel.deleteOne({
-    matricule: matricule,
-    date: { $gte: today, $lte: tomorrow },
-  })
-    .then(() => res.status(204).send())
-    .catch((err) =>
-      res.status(500).send(`Error deleting student data: ${err.message}`)
-    );
-});
-app.delete("/deleteEtd/:matricule", (req, res) => {
-  const { matricule } = req.params;
-  const today = new Date(); // Get the current date and time
-  today.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
-
-  const tomorrow = new Date(today); // Create a copy of the current date
-  tomorrow.setDate(today.getDate() + 1);
-  tomorrow.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
-
-  // Set the date component to tomorrow
-
-  console.log(today); // Output: Date object representing tomorrow's date
-  console.log(tomorrow); // Output: Date object representing tomorrow's date
+  console.log(today);
+  console.log(tomorrow);
 
   PModel.deleteOne({
     matricule: matricule,
@@ -410,114 +439,81 @@ app.delete("/deleteEtd/:matricule", (req, res) => {
     );
 });
 
-app.get("/getEtds/:username", async (req, res) => {
-  const { username } = req.params;
-  console.log(username);
-
-  const user = await User.findOne({ username: username.toString() });
-  if (!user) {
-    return res.status(404).json({ message: "User not found" });
-  }
-
-  const MatriculeProf = user.matricule;
-  console.log(MatriculeProf);
-
+app.post("/addProf", async (req, res) => {
   try {
-    const IdCreneau = getIdCreneau();
-    console.log(IdCreneau);
-    const enseigne = await EnseigneModel.findOne({ IdCreneau, MatriculeProf });
-    if (!enseigne) {
-      return res.status(404).json({ message: "Enseigne not found" });
-    }
+    const { MatriculeProf, nom, prenom } = req.body;
 
-    const { palier, specialite, section, groupe } = enseigne;
-    console.log(palier, specialite, section, groupe);
-    etudiants = null;
-    if (groupe == null) {
-      etudiants = await EtdModel.find({
-        palier: palier,
-        specialite: specialite,
-        section: section,
-        //groupe: groupe,
-      });
-    } else {
-      etudiants = await EtdModel.find({
-        palier: palier,
-        specialite: specialite,
-        section: section,
-        groupe: groupe,
-      });
-    }
-    console.log(etudiants);
-    res.json(etudiants);
-  } catch (err) {
-    console.error(err);
+    const newProf = new Prof({ MatriculeProf, nom, prenom });
+
+    await newProf.save();
+
+    res.status(201).json({ message: "Professor added successfully" });
+  } catch (error) {
+    console.error("Error adding professor:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
-app.get("/getEtdsPresent", async (req, res) => {
-  const today = new Date(); // Get the current date and time
-  today.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
 
-  const tomorrow = new Date(today); // Create a copy of the current date
-  tomorrow.setDate(today.getDate() + 1);
-  tomorrow.setHours(1, 0, 0, 0); // Set hours, minutes, seconds, and milliseconds to 0 (midnight)
-
-  // Set the date component to tomorrow
-
-  console.log(today); // Output: Date object representing tomorrow's date
-  console.log(tomorrow); // Output: Date object representing tomorrow's date
-  const currentCreneau = getIdCreneau();
-  const number = parseInt(currentCreneau, 10); // 10 specifies the decimal radix
-
-  console.log(number);
-
+app.delete("/removeProf/:MatriculeProf", async (req, res) => {
   try {
-    const result = await PModel.aggregate([
-      {
-        $match: {
-          date: { $gte: today, $lte: tomorrow },
-          creneau: number,
-        },
-      },
-      {
-        $project: {
-          matricule: 1,
-          date: 1,
-          creneau: 1,
-        },
-      },
-      {
-        $lookup: {
-          from: "etudiants",
-          localField: "matricule",
-          foreignField: "MatriculeEtd",
-          as: "etudiant",
-        },
-      },
-      {
-        $unwind: "$etudiant",
-      },
-      {
-        $project: {
-          _id: 0,
-          MatriculeEtd: "$matricule",
-          nom: "$etudiant.nom",
-          prenom: "$etudiant.prenom",
-        },
-      },
-    ]);
-    res.json(result);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "An error occurred" });
+    const { MatriculeProf } = req.params;
+
+    await Prof.deleteOne({ MatriculeProf });
+
+    res.status(200).json({ message: "Professor removed successfully" });
+  } catch (error) {
+    console.error("Error removing professor:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 
-// route to convertToEmbeddings a directory of images
+app.post("/addEtd", async (req, res) => {
+  try {
+    const {
+      palier,
+      specialite,
+      section,
+      MatriculeEtd,
+      nom,
+      prenom,
+      etat,
+      groupe,
+    } = req.body;
+
+    const newEtd = new EtdModel({
+      palier,
+      specialite,
+      section,
+      MatriculeEtd,
+      nom,
+      prenom,
+      etat,
+      groupe,
+    });
+
+    await newEtd.save();
+
+    res.status(201).json({ message: "Etudiant added successfully" });
+  } catch (error) {
+    console.error("Error adding etudiant:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.delete("/removeEtd/:MatriculeEtd", async (req, res) => {
+  try {
+    const { MatriculeEtd } = req.params;
+
+    await EtdModel.deleteOne({ MatriculeEtd });
+
+    res.status(200).json({ message: "Etudiant removed successfully" });
+  } catch (error) {
+    console.error("Error removing etudiant:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.post("/convertToEmbeddings", upload.array("images"), (req, res) => {
-  //console.log(req.files);
-  // res.send("Images uploaded successfully");
   var spawn = require("child_process").spawn;
   var processe = spawn("python", [
     process.env.EMBEDDING_SCRIPT_PATH,
@@ -527,8 +523,6 @@ app.post("/convertToEmbeddings", upload.array("images"), (req, res) => {
     process.env.DETECTION_MODEL_PATH,
   ]);
 
-  // Takes stdout data from script which executed
-  // with arguments and send this data to res object
   processe.stdout.on("data", function (data) {
     console.log(data.toString());
   });
@@ -539,11 +533,9 @@ app.post("/convertToEmbeddings", upload.array("images"), (req, res) => {
 
 app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
   const { IdCreneau, MatriculeProf } = req.params;
-  //If idCreneau and MatriculeProf are equal to all return all the embeddings
   if (IdCreneau === "all" && MatriculeProf === "all") {
     EmbeddingsModel.find()
       .then((embeddings) => {
-        //make the response a json object with the matricule as the key and the embeddings as the value
         const result = embeddings.reduce((acc, cur) => {
           acc[cur.MatriculeEtd] = cur.embedding;
           return acc;
@@ -568,7 +560,6 @@ app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
             specialite,
             specialite,
             section: section,
-            //groupe: groupe,
           })
             .then((etudiants) => {
               const matricules = etudiants.map(
@@ -576,7 +567,6 @@ app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
               );
               EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
                 .then((embeddings) => {
-                  //make the response a json object with the matricule as the key and the embeddings as the value
                   const result = embeddings.reduce((acc, cur) => {
                     acc[cur.MatriculeEtd] = cur.embedding;
                     return acc;
