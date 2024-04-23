@@ -339,6 +339,17 @@ app.post("/addEtd", async (req, res) => {
 app.post("/postEtdsPresent", (req, res) => {
   const data = req.body;
   //console.log(data);
+  const newEtd = new PModel(data);
+  newEtd
+    .save()
+    .then(() => res.status(201).send("Student data added successfully"))
+    .catch((err) =>
+      res.status(500).send(`Error adding student data: ${err.message}`)
+    );
+});
+app.post("/postEtdsPresentFromHistory", (req, res) => {
+  const data = req.body;
+  //console.log(data);
   const newEtd = new PresenceModel(data);
   newEtd
     .save()

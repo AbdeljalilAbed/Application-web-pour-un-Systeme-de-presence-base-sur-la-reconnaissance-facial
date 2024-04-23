@@ -179,7 +179,7 @@ function History() {
       updatedIsPresent[date] = updatedIsPresent[date] || [];
       updatedIsPresent[date].push({ MatriculeEtd });
       axios
-        .post(backendURL + "/postEtdsPresent", {
+        .post(backendURL + "/postEtdsPresentFromHistory", {
           matricule: MatriculeEtd,
           date: today,
         })
