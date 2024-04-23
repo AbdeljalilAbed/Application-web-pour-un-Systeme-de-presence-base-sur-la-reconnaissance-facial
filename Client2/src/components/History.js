@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { backendURL } from "../config";
 import { jwtDecode } from "jwt-decode";
+import { exportToExcel } from "../excelExport"; // Import the function to export to Excel
 
 function History() {
   const [Etds, setEtds] = useState([]);
@@ -202,6 +203,10 @@ function History() {
         .catch((err) => console.log(err));
     }
   };
+  const handleExportToExcel = () => {
+    // Call the exportToExcel function passing the necessary data
+    exportToExcel(Etds, dates, isPresent);
+  };
   return (
     <div className="container vh-100">
       <div className="container-fluid text-center">
@@ -237,6 +242,23 @@ function History() {
               ))}
             </select>
           </div>
+          <div className="col-2">
+            <select
+              className="form-select"
+              aria-label="Module"
+              value={selectedModule}
+              onChange={handleModuleChange}
+              disabled={!selectedSpecialite}
+            >
+              <option value="">Module</option>
+              {modules.map((module) => (
+                <option key={module} value={module}>
+                  {module}
+                </option>
+              ))}
+            </select>
+          </div>
+
           <div className="col-2">
             <select
               className="form-select"
@@ -278,31 +300,22 @@ function History() {
               onChange={(e) => setMatricule(e.target.value)}
             />
           </div>
-          <div className="col-2">
-            <select
-              className="form-select"
-              aria-label="Module"
-              value={selectedModule}
-              onChange={handleModuleChange}
-              disabled={!selectedSpecialite}
-            >
-              <option value="">Module</option>
-              {modules.map((module) => (
-                <option key={module} value={module}>
-                  {module}
-                </option>
-              ))}
-            </select>
-          </div>
         </div>
         <div className="row mt-3">
           <div className="col">
             <button
               type="button"
-              className="btn btn-secondary "
+              className="btn btn-secondary m-3 "
               onClick={handleSubmit}
             >
               Submit
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary m-3"
+              onClick={handleExportToExcel}
+            >
+              Export to Excel
             </button>
           </div>
         </div>
