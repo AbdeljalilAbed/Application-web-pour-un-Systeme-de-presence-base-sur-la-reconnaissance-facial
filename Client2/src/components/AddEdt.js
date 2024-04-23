@@ -43,7 +43,7 @@ const AddEtd = () => {
       {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
 
-      <div className="login-header">Add Crenau Edt</div>
+      <div className="login-header">Ajouter Creneau</div>
       <form onSubmit={handleAddEtd}>
         <div className="input-group mb-3">
           <input
@@ -118,8 +118,8 @@ const AddEtd = () => {
             id="groupe"
           />
         </div>
-        <button className="btn btn-primary" type="submit">
-          Add Creneau 
+        <button className="login-button" type="submit">
+          Ajouter
         </button>
       </form>
     </div>

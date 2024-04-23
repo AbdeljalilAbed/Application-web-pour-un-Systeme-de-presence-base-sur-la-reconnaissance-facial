@@ -33,7 +33,7 @@ const AddProf = () => {
       {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
 
-      <div className="login-header">Add Professor</div>
+      <div className="login-header">Ajouter un enseignant</div>
       <div>
         <form onSubmit={handleAddProf}>
           <input
@@ -60,7 +60,7 @@ const AddProf = () => {
             id="prenom"
           />
           <button className="login-button" type="submit">
-            Add Professor
+            Ajouter
           </button>
         </form>
       </div>

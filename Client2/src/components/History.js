@@ -315,7 +315,7 @@ function History() {
               className="btn btn-secondary m-3"
               onClick={handleExportToExcel}
             >
-              Export to Excel
+              Export En Excel
             </button>
           </div>
         </div>

@@ -30,7 +30,7 @@ const RemoveProf = () => {
       {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
 
-      <div className="login-header">Remove Professor</div>
+      <div className="login-header">Supprimer un enseignant</div>
       <form onSubmit={handleRemoveProf}>
         <input
           value={MatriculeProf}
@@ -41,7 +41,7 @@ const RemoveProf = () => {
           id="MatriculeProf"
         />
         <button className="login-button" type="submit">
-          Remove Professor
+          Supprimer
         </button>
       </form>
     </div>

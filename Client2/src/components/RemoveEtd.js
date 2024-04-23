@@ -30,7 +30,7 @@ const RemoveEtd = () => {
       {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
       {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
 
-      <div className="login-header">Remove Etudiant</div>
+      <div className="login-header">Supprimer un etudiant</div>
       <form onSubmit={handleRemoveEtd}>
         <input
           value={MatriculeEtd}
@@ -41,7 +41,7 @@ const RemoveEtd = () => {
           id="MatriculeEtd"
         />
         <button className="login-button" type="submit">
-          Remove Etudiant
+          supprimer
         </button>
       </form>
     </div>

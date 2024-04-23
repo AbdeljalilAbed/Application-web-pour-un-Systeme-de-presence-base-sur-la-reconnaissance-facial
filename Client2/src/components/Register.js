@@ -36,7 +36,7 @@ const Registration = () => {
 
   return (
     <div className="border border-primary border-3 rounded p-3">
-      <div className="login-header">Register</div>
+      <div className="login-header">S'inscrire</div>
       <div>
         <form onSubmit={handleSubmit}>
           <div className="d-flex">
@@ -102,7 +102,7 @@ const Registration = () => {
             id="password"
           />
           <button className="login-button" type="submit">
-            Login
+            S'inscrire
           </button>
         </form>
         {message && <p>{message}</p>}

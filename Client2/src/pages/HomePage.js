@@ -39,7 +39,7 @@ function HomePage() {
                 <div class="col-sm">
                   <Link to="/Auth">
                     <button type="button" class="btn  btn-dark btn-lg">
-                      Get started
+                      Authentification
                     </button>
                   </Link>
                 </div>

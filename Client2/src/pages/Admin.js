@@ -58,7 +58,6 @@ function Admin() {
     setColumn2Component(<AddProf />);
     setColumn3Component(<RemoveProf />);
     setColumn4Component(null);
-
   };
 
   const handleGestionEdtClick = () => {
@@ -66,7 +65,6 @@ function Admin() {
     setColumn2Component(<RemoveEdt />);
     setColumn3Component(<AddEdt />);
     setColumn4Component(null);
-
   };
 
   return (
@@ -116,12 +114,12 @@ function Admin() {
                 </a>
               </li>
               <li className="nav-item">
-                <a className="nav-link text-dark" aria-current="page" href="#">
-                  Gestion des Rpi
-                </a>
-              </li>
-              <li className="nav-item">
-                <a className="nav-link text-dark" aria-current="page" href="#" onClick={handleGestionEdtClick}>
+                <a
+                  className="nav-link text-dark"
+                  aria-current="page"
+                  href="#"
+                  onClick={handleGestionEdtClick}
+                >
                   Gestion des emploi du temps
                 </a>
               </li>
@@ -142,9 +140,7 @@ function Admin() {
           </div>
         </div>
         <div className="row">
-          <div>
-            {column4Component}
-          </div>
+          <div>{column4Component}</div>
         </div>
       </div>
     </div>

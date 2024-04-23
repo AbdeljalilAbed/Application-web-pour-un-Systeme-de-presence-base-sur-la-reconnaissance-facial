@@ -93,7 +93,7 @@ function Table() {
           type="button"
           className="btn btn-secondary btn-lg"
         >
-          Refresh Attendance
+          Actualiser la presence
         </button>
       </div>
 

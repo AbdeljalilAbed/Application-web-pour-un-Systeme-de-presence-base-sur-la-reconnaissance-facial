@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { backendURL } from "../config";
-
+import "./Register.css";
 
 function UploadImages() {
   const [selectedFiles, setSelectedFiles] = useState([]);
@@ -18,7 +18,7 @@ function UploadImages() {
 
     try {
       const response = await axios.post(
-        backendURL+"/images-upload",
+        backendURL + "/images-upload",
         formData,
         {
           headers: {
@@ -27,25 +27,30 @@ function UploadImages() {
         }
       );
       console.log("Upload successful:", response.data);
-            alert("Data uploaded successfully");
-
+      alert("Data uploaded successfully");
     } catch (error) {
       console.error("Upload failed:", error);
-            alert("Failed to upload data");
-
+      alert("Failed to upload data");
     }
   };
 
   return (
-    <div className="col bg-body rounded p-2">    <div className="border border-primary border-3 rounded p-2">
-      <div className="login-header">Upload Images Etudiants</div>
-            <form>
-      <input type="file" multiple onChange={handleFileChange} />
-      <button onClick={handleSubmit}>Upload</button>
-      </form>
-
+    <div className="col bg-body rounded p-2">
+      {" "}
+      <div className="border border-primary border-3 rounded p-2">
+        <div className="login-header">Upload Images Etudiants</div>
+        <form>
+          <input type="file" multiple onChange={handleFileChange} />
+          <button
+            onClick={handleSubmit}
+            className="btn btn-primary"
+            type="submit"
+          >
+            Upload
+          </button>
+        </form>
+      </div>
     </div>
-</div>
   );
 }
 
