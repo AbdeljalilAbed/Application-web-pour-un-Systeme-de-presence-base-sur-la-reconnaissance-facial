@@ -161,10 +161,12 @@ function History() {
         )
       );
       const presenceData = await Promise.all(presencePromises);
+      console.log(presenceData);
       const presenceByDate = presenceData.reduce((acc, cur, index) => {
         acc[dateValues[index]] = cur.data;
         return acc;
       }, {});
+      console.log(presenceByDate);
       setIsPresent(presenceByDate);
     } catch (error) {
       // Handle error

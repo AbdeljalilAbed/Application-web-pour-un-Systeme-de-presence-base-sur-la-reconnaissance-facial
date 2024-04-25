@@ -36,7 +36,8 @@ app.get("/", (req, res) => {
   res.send("Welcome to my API");
 });
 
-const imageUploadPath = "C:/Users/TRETEC/Desktop/WebappV2/webapp/Server/archive";
+const imageUploadPath =
+  "C:/Users/TRETEC/Desktop/WebappV2/webapp/Server/archive";
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -67,9 +68,8 @@ app.post("/images-upload", imageUpload.array("images"), (req, res) => {
     "arrayFromImages.py",
     process.env.IMG_PATH,
     process.env.DB_URL,
-    process.env.DETECTION_MODEL_PATH,    
-    process.env.RECOGNITION_MODEL_PATH
-
+    process.env.DETECTION_MODEL_PATH,
+    process.env.RECOGNITION_MODEL_PATH,
   ]);
   // collect data from script
   python.stdout.on("data", function (data) {
@@ -84,28 +84,34 @@ app.post("/images-upload", imageUpload.array("images"), (req, res) => {
   });
 });
 
-app.post('/edt-upload', upload.single('file'), (req, res) => {
-    const palier = req.body.palier;
-    const specialite = req.body.specialite;
-    const section = req.body.section;
+app.post("/edt-upload", upload.single("file"), (req, res) => {
+  const palier = req.body.palier;
+  const specialite = req.body.specialite;
+  const section = req.body.section;
 
-    let dataToSend;
+  let dataToSend;
 
-    // Spawn a new child process to call the Python script
-    const python = spawn('python', ['ExcelToEdt.py', req.file.path, section, palier, specialite]);
+  // Spawn a new child process to call the Python script
+  const python = spawn("python", [
+    "ExcelToEdt.py",
+    req.file.path,
+    section,
+    palier,
+    specialite,
+  ]);
 
-    // Collect data from script
-    python.stdout.on('data', function (data) {
-        console.log('Pipe data from python script ...');
-        dataToSend = data.toString();
-    });
+  // Collect data from script
+  python.stdout.on("data", function (data) {
+    console.log("Pipe data from python script ...");
+    dataToSend = data.toString();
+  });
 
-    // In close event we are sure that stream from child process is closed
-    python.on('close', (code) => {
-        console.log(`Child process close all stdio with code ${code}`);
-        // Send data to browser
-        res.send(dataToSend);
-    });
+  // In close event we are sure that stream from child process is closed
+  python.on("close", (code) => {
+    console.log(`Child process close all stdio with code ${code}`);
+    // Send data to browser
+    res.send(dataToSend);
+  });
 });
 // Route for uploading Excel file
 app.post("/upload", upload.single("file"), (req, res) => {
@@ -627,10 +633,10 @@ app.delete("/removeEtd/:MatriculeEtd", async (req, res) => {
 
 app.delete("/removeEdt/:palier/:specialite/:section", async (req, res) => {
   try {
-    const { palier,specialite,section } = req.params;
-    console.log(palier)
+    const { palier, specialite, section } = req.params;
+    console.log(palier);
 
-    await EnseigneModel.deleteMany({ palier,specialite,section });
+    await EnseigneModel.deleteMany({ palier, specialite, section });
 
     res.status(200).json({ message: "Emploi du temps removed successfully" });
   } catch (error) {
@@ -671,7 +677,6 @@ app.post("/addEdt", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
-
 
 app.post("/convertToEmbeddings", upload.array("images"), (req, res) => {
   var spawn = require("child_process").spawn;
