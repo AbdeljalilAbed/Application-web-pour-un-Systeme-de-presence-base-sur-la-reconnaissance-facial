@@ -43,7 +43,7 @@ function History() {
   };
   const modulesBySpecialite = {
     "TRONC COMMUN": ["MATH", "PHYSIQUE", "CHIMIE", "INFO", "TIC", "ANGLAIS"],
-    ACAD: ["PWEB", "TP PWEB", "A/C SERV", "TP A/C SERV", "DOC STR"],
+    ACAD: ["PWEB", "TP PWEB", "A/C SERV", "TP A/C SERV", "DOC STR", "TEST"],
     ISIL: ["PWEB", "TP PWEB", "A/C SERV", "TP A/C SERV", "DOC STR"],
     RSd: ["A"],
     IL: ["A"],

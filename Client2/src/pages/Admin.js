@@ -15,6 +15,8 @@ import { jwtDecode } from "jwt-decode";
 import "./Admin.css";
 import { AuthProvider } from "../components/AuthContext";
 import UploadImages from "../components/UploadImages";
+import DeleteImages from "../components/DeleteImages";
+import DeleteCreneau from "../components/DeleteCreneau";
 
 function Admin() {
   const [username, setUsername] = useState("");
@@ -22,6 +24,8 @@ function Admin() {
   const [column2Component, setColumn2Component] = useState(null);
   const [column3Component, setColumn3Component] = useState(null);
   const [column4Component, setColumn4Component] = useState(null);
+  const [column5Component, setColumn5Component] = useState(null);
+  const [column6Component, setColumn6Component] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -51,6 +55,8 @@ function Admin() {
     setColumn2Component(<AddEtd />);
     setColumn3Component(<RemoveEtd />);
     setColumn4Component(<UploadImages />);
+    setColumn5Component(<DeleteImages />);
+    setColumn6Component(null);
   };
 
   const handleGestionProfsClick = () => {
@@ -58,6 +64,8 @@ function Admin() {
     setColumn2Component(<AddProf />);
     setColumn3Component(<RemoveProf />);
     setColumn4Component(null);
+    setColumn5Component(null);
+    setColumn6Component(null);
   };
 
   const handleGestionEdtClick = () => {
@@ -65,6 +73,8 @@ function Admin() {
     setColumn2Component(<RemoveEdt />);
     setColumn3Component(<AddEdt />);
     setColumn4Component(null);
+    setColumn5Component(null);
+    setColumn6Component(<DeleteCreneau />);
   };
 
   return (
@@ -75,16 +85,6 @@ function Admin() {
         <div className="row">
           <div className="col-4">
             <ul className="nav">
-              <li className="nav-item">
-                {" "}
-                <a
-                  className="nav-link active text-dark"
-                  aria-current="page"
-                  href="#"
-                >
-                  User : {username}
-                </a>
-              </li>
               <li className="nav-item mt-1">
                 <AuthProvider>
                   <Logout />
@@ -100,7 +100,7 @@ function Admin() {
                   href="#"
                   onClick={handleGestionProfsClick}
                 >
-                  Getsion de Prof
+                  Getsion des Enseignants
                 </a>
               </li>
 
@@ -120,7 +120,7 @@ function Admin() {
                   href="#"
                   onClick={handleGestionEdtClick}
                 >
-                  Gestion des emploi du temps
+                  Gestion des Emploi du temps
                 </a>
               </li>
             </ul>
@@ -139,9 +139,16 @@ function Admin() {
             {column3Component}
           </div>
         </div>
-        <div className="row">
-          <div>{column4Component}</div>
-        </div>
+        {column6Component === null ? (
+          <div className="row">
+            <div className="col-6">{column4Component}</div>
+            <div className="col-6">{column5Component}</div>
+          </div>
+        ) : (
+          <div className="row justify-content-center">
+            <div className="col-6 text-center">{column6Component}</div>
+          </div>
+        )}{" "}
       </div>
     </div>
   );

@@ -41,9 +41,10 @@ function UploadImages() {
         <div className="login-header">Upload Images Etudiants</div>
         <form>
           <input type="file" multiple onChange={handleFileChange} />
+          <br></br>
           <button
             onClick={handleSubmit}
-            className="btn btn-primary"
+            className="btn btn-primary m-3"
             type="submit"
           >
             Upload

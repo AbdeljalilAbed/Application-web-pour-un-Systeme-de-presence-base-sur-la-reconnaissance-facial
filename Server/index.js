@@ -678,6 +678,32 @@ app.post("/addEdt", async (req, res) => {
   }
 });
 
+app.delete("/removeImages/:MatriculeEtd", async (req, res) => {
+  try {
+    const { MatriculeEtd } = req.params;
+
+    await EmbeddingsModel.deleteMany({ MatriculeEtd });
+
+    res.status(200).json({ message: "Embeddings removed successfully" });
+  } catch (error) {
+    console.error("Error Embeddings etudiant:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.delete("/removeCreneau/:MatriculeProf/:IdCreneau", async (req, res) => {
+  try {
+    const { MatriculeProf, IdCreneau } = req.params;
+
+    await EnseigneModel.deleteMany({ MatriculeProf, IdCreneau });
+
+    res.status(200).json({ message: "Creneau removed successfully" });
+  } catch (error) {
+    console.error("Error Creneau etudiant:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.post("/convertToEmbeddings", upload.array("images"), (req, res) => {
   var spawn = require("child_process").spawn;
   var processe = spawn("python", [
@@ -785,106 +811,6 @@ app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
       });
   }
 });
-
-//get embeddings of students jdida
-/* app.get("/getEmbeddings/:idSalle", (req, res) => {
-  //get the current crenau
-  const idCrenau = getIdCreneau();
-  const idSalle = req.params.idSalle;
-
-  if (idCrenau == -1) {
-    return res.status(404).json({ message: "Hors des heures de cours" });
-  }
-
-  if (idSalle == "all") {
-    EmbeddingsModel.find()
-      .then((embeddings) => {
-        //make the response a json object with the matricule as the key and the embeddings as the value
-        const result = embeddings.reduce((acc, cur) => {
-          acc[cur.MatriculeEtd] = cur.embedding;
-          return acc;
-        }, {});
-        res.json(result);
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).json({ message: "Internal server error" });
-      });
-  } else {
-    EnseigneModel.findOne({ idCrenau, idSalle })
-      .then((enseigne) => {
-        if (!enseigne) {
-          return res.status(404).json({ message: "Enseigne not found" });
-        }
-        const { palier, specialite, section, groupe } = enseigne;
-        if (groupe == null) {
-          etudiants = EtdModel.find({
-            palier: palier,
-            specialite,
-            specialite,
-            section: section,
-            //groupe: groupe,
-          })
-            .then((etudiants) => {
-              const matricules = etudiants.map(
-                (etudiant) => etudiant.MatriculeEtd
-              );
-              EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
-                .then((embeddings) => {
-                  //make the response a json object with the matricule as the key and the embeddings as the value
-                  const result = embeddings.reduce((acc, cur) => {
-                    acc[cur.MatriculeEtd] = cur.embedding;
-                    return acc;
-                  }, {});
-                  res.json(result);
-                })
-                .catch((err) => {
-                  console.error(err);
-                  res.status(500).json({ message: "Internal server error" });
-                });
-            })
-            .catch((err) => {
-              console.error(err);
-              res.status(500).json({ message: "Internal server error" });
-            });
-        } else {
-          etudiants = EtdModel.find({
-            palier: palier,
-            specialite,
-            specialite,
-            section: section,
-            groupe: groupe,
-          })
-            .then((etudiants) => {
-              const matricules = etudiants.map(
-                (etudiant) => etudiant.MatriculeEtd
-              );
-              EmbeddingsModel.find({ MatriculeEtd: { $in: matricules } })
-                .then((embeddings) => {
-                  //make the response a json object with the matricule as the key and the embeddings as the value
-                  const result = embeddings.reduce((acc, cur) => {
-                    acc[cur.MatriculeEtd] = cur.embedding;
-                    return acc;
-                  }, {});
-                  res.json(result);
-                })
-                .catch((err) => {
-                  console.error(err);
-                  res.status(500).json({ message: "Internal server error" });
-                });
-            })
-            .catch((err) => {
-              console.error(err);
-              res.status(500).json({ message: "Internal server error" });
-            });
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        res.status(500).json({ message: "Internal server error" });
-      });
-  }
-}); */
 
 app.listen(3001, () => {
   console.log("Server is running");
