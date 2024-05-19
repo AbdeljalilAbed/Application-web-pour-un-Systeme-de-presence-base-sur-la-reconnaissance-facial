@@ -19,7 +19,7 @@ const Logout = () => {
       className="btn btn-outline-dark btn-sm"
       onClick={handleLogout}
     >
-      Logout
+      Se déconnecter
     </button>
   );
 };

@@ -36,7 +36,7 @@ const Registration = () => {
 
   return (
     <div className="border border-primary border-3 rounded p-3">
-      <div className="login-header">S'inscrire</div>
+      <div className="login-header">Nouveau compte utilisateur</div>
       <div>
         <form onSubmit={handleSubmit}>
           <div className="d-flex">
@@ -53,7 +53,7 @@ const Registration = () => {
                 className=" d-flex form-check-label"
                 htmlFor="profCheckbox"
               >
-                Prof
+                Enseignant
               </label>
             </div>
             <div className="form-check">
@@ -69,7 +69,7 @@ const Registration = () => {
                 className="d-flex form-check-label"
                 htmlFor="adminCheckbox"
               >
-                Admin
+                Administrateur
               </label>
             </div>
           </div>
@@ -102,7 +102,7 @@ const Registration = () => {
             id="password"
           />
           <button className="login-button" type="submit">
-            S'inscrire
+            Ajouter
           </button>
         </form>
         {message && <p>{message}</p>}

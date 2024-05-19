@@ -310,14 +310,14 @@ function History() {
               className="btn btn-secondary m-3 "
               onClick={handleSubmit}
             >
-              Submit
+              Rechercher
             </button>
             <button
               type="button"
               className="btn btn-secondary m-3"
               onClick={handleExportToExcel}
             >
-              Export En Excel
+              Exporter vers excel
             </button>
           </div>
         </div>

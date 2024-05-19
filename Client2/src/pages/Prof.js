@@ -26,7 +26,7 @@ function Prof() {
               class="btn btn-outline-dark"
               type="button"
             >
-              Logout
+              Se déconnecter
             </button>
           </form>
         </nav>
@@ -42,7 +42,7 @@ function Prof() {
         <div className="div-1">
           <div className="div-2">
             <div className="div-3">Vue d'ensemble de la présence</div>
-            <div className="div-4">Historique de presence </div>
+            <div className="div-4">Historique de presences </div>
           </div>
         </div>
       </div>

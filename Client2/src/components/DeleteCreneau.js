@@ -32,7 +32,7 @@ const DeleteCreneau = () => {
         {successMessage && <p style={{ color: "green" }}>{successMessage}</p>}
         {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
 
-        <div className="login-header">Supprimer Creneau</div>
+        <div className="login-header">Supprimer Créneau</div>
         <form onSubmit={handleRemoveCreneau}>
           <input
             value={MatriculeProf}
