@@ -245,6 +245,76 @@ app.get("/getEtds/:username", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+//GET DEFAULT LIST ETUDIANTS WITH CURRENT CRENEAU AND USERNAME
+app.get("/getEnseignants", async (req, res) => {
+  try {
+    Enseignants = await Prof.find();
+
+    console.log(Enseignants);
+    res.json(Enseignants);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+//GET DEFAULT LIST ETUDIANTS WITH CURRENT CRENEAU AND USERNAME
+app.get("/getEtudiants", async (req, res) => {
+  const { palier, specialite, section, groupe, matricule } = req.query;
+  console.log(req.query);
+  let Etudiants = null;
+
+  try {
+    if (matricule) {
+      Etudiants = await EtdModel.findOne({ MatriculeEtd: matricule });
+    } else if (groupe !== undefined && groupe !== null && groupe !== "") {
+      Etudiants = await EtdModel.find({
+        palier: palier,
+        specialite: specialite,
+        section: section,
+        groupe: groupe,
+      });
+    } else {
+      Etudiants = await EtdModel.find({
+        palier: palier,
+        specialite: specialite,
+        section: section,
+      });
+    }
+    console.log(Etudiants);
+    res.json(Etudiants);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+//GET DEFAULT LIST ETUDIANTS WITH CURRENT CRENEAU AND USERNAME
+app.get("/getEmploiDuTemps", async (req, res) => {
+  const { palier, specialite, section, groupe } = req.query;
+  console.log(req.query);
+  let Edts = null;
+
+  try {
+    if (groupe !== undefined && groupe !== null && groupe !== "") {
+      Edts = await EnseigneModel.find({
+        palier: palier,
+        specialite: specialite,
+        section: section,
+        groupe: groupe,
+      });
+    } else {
+      Edts = await EnseigneModel.find({
+        palier: palier,
+        specialite: specialite,
+        section: section,
+      });
+    }
+    console.log(Edts);
+    res.json(Edts);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 // GET LIST OF ATTENDANCE OF CURRENT CRENEAU
 app.get("/getEtdsPresent", async (req, res) => {
