@@ -155,48 +155,33 @@ app.post("/upload", upload.single("file"), (req, res) => {
 app.post("/login", async (req, res) => {
   const { username, password } = req.body;
 
-  const user = await User.findOne({ username });
-
-  if (!user) return res.status(400).send("Invalid username or password.");
-
-  const validPassword = await bcrypt.compare(password, user.password);
-
-  if (!validPassword)
-    return res.status(400).send("Invalid username or password.");
-
-  const token = jwt.sign({ username: user.username }, "secretKey");
-
-  res.send({ token, role: user.role, matricule: user.matricule });
-});
-
-//REGISTER ENDPOINT
-app.post("/register", async (req, res) => {
-  try {
-    const { username, password, matricule, role } = req.body;
-
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(400).json({ error: "Username already exists." });
-    }
-
+  if (username == "admin") {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    const user = new User({
+    const Admin = new Prof({
       username,
       password: hashedPassword,
-      matricule,
-      role,
     });
 
-    const savedUser = await user.save();
-    res.json({
-      message: "User registered successfully",
-      userId: savedUser._id,
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
+    const token = jwt.sign({ username: Admin.username }, "secretKey");
+
+    Admin.role = "admin";
+    res.send({ token, role: Admin.role, matricule: Admin.matricule });
+  } else {
+    const user = await Prof.findOne({ username });
+
+    if (!user) return res.status(400).send("Invalid username or password.");
+
+    const validPassword = await bcrypt.compare(password, user.password);
+
+    if (!validPassword)
+      return res.status(400).send("Invalid username or password.");
+
+    const token = jwt.sign({ username: user.username }, "secretKey");
+
+    user.role = "prof";
+    res.send({ token, role: user.role, matricule: user.matricule });
   }
 });
 
@@ -626,12 +611,69 @@ app.delete("/deleteEtdFromHistory/:matricule/:date", (req, res) => {
       res.status(500).send(`Error deleting student data: ${err.message}`)
     );
 });
+app.put("/modifierEnseignant/:matricule", async (req, res) => {
+  try {
+    const oldMatricule = req.params.matricule;
+    const { MatriculeProf, nom, prenom, username, password } = req.body;
+
+    const existingProf = await Prof.findOne({ MatriculeProf: oldMatricule });
+    if (!existingProf) {
+      return res.status(404).json({ error: "Professor not found." });
+    }
+
+    if (MatriculeProf && MatriculeProf !== oldMatricule) {
+      const existingMatricule = await Prof.findOne({ MatriculeProf });
+      if (existingMatricule) {
+        return res.status(400).json({ error: "Matricule already exists." });
+      }
+      existingProf.MatriculeProf = MatriculeProf;
+    }
+
+    if (username && username !== existingProf.username) {
+      const existingUsername = await Prof.findOne({ username });
+      if (existingUsername) {
+        return res.status(400).json({ error: "Username already exists." });
+      }
+    }
+
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
+      existingProf.password = hashedPassword;
+    }
+
+    existingProf.nom = nom || existingProf.nom;
+    existingProf.prenom = prenom || existingProf.prenom;
+    existingProf.username = username || existingProf.username;
+
+    await existingProf.save();
+
+    res.status(200).json({ message: "Professor updated successfully" });
+  } catch (error) {
+    console.error("Error updating professor:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 app.post("/addProf", async (req, res) => {
   try {
-    const { MatriculeProf, nom, prenom } = req.body;
+    const { MatriculeProf, nom, prenom, username, password } = req.body;
 
-    const newProf = new Prof({ MatriculeProf, nom, prenom });
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const existingUsername = await Prof.findOne({ username });
+    if (existingUsername) {
+      return res.status(400).json({ error: "Username already exists." });
+    }
+
+    const newProf = new Prof({
+      MatriculeProf,
+      nom,
+      prenom,
+      username,
+      password: hashedPassword,
+    });
 
     await newProf.save();
 

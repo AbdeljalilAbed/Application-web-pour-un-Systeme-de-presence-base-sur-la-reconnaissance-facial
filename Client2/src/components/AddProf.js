@@ -4,6 +4,9 @@ import { backendURL } from "../config";
 import "./Register.css";
 
 const AddProf = () => {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+
   const [MatriculeProf, setMatriculeProf] = useState("");
   const [nom, setNom] = useState("");
   const [prenom, setPrenom] = useState("");
@@ -17,6 +20,8 @@ const AddProf = () => {
         MatriculeProf,
         nom,
         prenom,
+        username,
+        password,
       });
       console.log(response.data); // Log response from the server
       setSuccessMessage("Professor added successfully.");
@@ -58,6 +63,23 @@ const AddProf = () => {
             required
             className="login-input"
             id="prenom"
+          />
+          <input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            placeholder="Username"
+            required
+            className="login-input"
+            id="password"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password"
+            required
+            className="login-input"
+            id="password"
           />
           <button className="login-button" type="submit">
             Ajouter

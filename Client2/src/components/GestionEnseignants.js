@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
+import Popup from "reactjs-popup";
+import "reactjs-popup/dist/index.css";
+import AddProf from "./AddProf";
+import EditProf from "./EditProf";
 import { backendURL } from "../config";
 import axios from "axios";
-import Modal from "react-modal";
-import AddProf from "./AddProf"; // Ensure the path is correct
-import "./ModalStyles.css"; // Create and import CSS for modal
 
-// Set the app element for react-modal
-Modal.setAppElement("#root"); // '#root' should match the id of your app's root element
-
-const GestionEnseignants = () => {
+const GestionEtudiants = () => {
   const [Enseignants, setEnseignants] = useState([]);
-  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [selectedEnseignant, setSelectedEnseignant] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -24,28 +23,62 @@ const GestionEnseignants = () => {
       }
     }
 
-    fetchData(); // Call fetchData when the component mounts
-  }, []); // Empty dependency array ensures the effect runs only once after the initial render
+    fetchData();
+  }, []);
 
-  const openModal = () => {
-    setModalIsOpen(true);
+  const handleDelete = async (matricule) => {
+    try {
+      await axios.delete(`${backendURL}/removeProf/${matricule}`);
+      setEnseignants(
+        Enseignants.filter((ens) => ens.MatriculeProf !== matricule)
+      );
+      setSelectedEnseignant(null);
+    } catch (error) {
+      console.error("Error deleting Enseignant:", error);
+    }
   };
 
-  const closeModal = () => {
-    setModalIsOpen(false);
+  const handleUpdate = async () => {
+    try {
+      const EnseignantsResponse = await axios.get(
+        `${backendURL}/getEnseignants`
+      );
+      setEnseignants(EnseignantsResponse.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
   };
 
   return (
     <div className="container bg-body rounded mt-3 text-center">
       <div className="row p-4">
         <div className="col">
-          <button
-            onClick={openModal} // Open the modal when button is clicked
-            type="button"
-            className="btn btn-secondary"
+          <Popup
+            trigger={
+              <button type="button" className="btn btn-secondary btn-lg">
+                Ajouter Enseignant
+              </button>
+            }
+            modal
+            nested
           >
-            Ajouter Enseignant
-          </button>
+            {(close) => (
+              <div>
+                <div className="row text-end">
+                  <div className="col">
+                    <button
+                      className="btn btn-primary close mb-1"
+                      onClick={close}
+                      position="top right"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                </div>
+                <AddProf />
+              </div>
+            )}
+          </Popup>
         </div>
       </div>
       <div className="row">
@@ -54,6 +87,7 @@ const GestionEnseignants = () => {
             <thead>
               <tr>
                 <th>Matricule</th>
+                <th>Nom d'utilisateur</th>
                 <th>Nom</th>
                 <th>Prénom</th>
                 <th></th>
@@ -64,10 +98,18 @@ const GestionEnseignants = () => {
               {Enseignants.map((Enseignant, index) => (
                 <tr key={index}>
                   <td>{Enseignant.MatriculeProf}</td>
+                  <td>{Enseignant.username}</td>
                   <td>{Enseignant.nom}</td>
                   <td>{Enseignant.prenom}</td>
                   <td>
-                    <button type="button" className="btn">
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => {
+                        setSelectedEnseignant(Enseignant);
+                        setIsEdit(true);
+                      }}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -81,7 +123,11 @@ const GestionEnseignants = () => {
                     </button>
                   </td>
                   <td>
-                    <button type="button" className="btn">
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => setSelectedEnseignant(Enseignant)}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="16"
@@ -101,20 +147,92 @@ const GestionEnseignants = () => {
         </div>
       </div>
 
-      <Modal
-        isOpen={modalIsOpen}
-        onRequestClose={closeModal}
-        contentLabel="Add Professor"
-        className="modal"
-        overlayClassName="modal-overlay"
-      >
-        <AddProf />
-        <button onClick={closeModal} className="close-modal-button">
-          Close
-        </button>
-      </Modal>
+      {selectedEnseignant && isEdit && (
+        <Popup
+          open={true}
+          modal
+          nested
+          onClose={() => {
+            setSelectedEnseignant(null);
+            setIsEdit(false);
+          }}
+        >
+          <div>
+            <div className="row text-end">
+              <div className="col">
+                <button
+                  className="btn btn-primary close mb-1"
+                  onClick={() => {
+                    setSelectedEnseignant(null);
+                    setIsEdit(false);
+                  }}
+                  position="top right"
+                >
+                  &times;
+                </button>
+              </div>
+            </div>
+            <EditProf
+              enseignant={selectedEnseignant}
+              onClose={() => {
+                setSelectedEnseignant(null);
+                setIsEdit(false);
+              }}
+              onUpdate={handleUpdate}
+            />
+          </div>
+        </Popup>
+      )}
+
+      {selectedEnseignant && !isEdit && (
+        <Popup
+          open={true}
+          modal
+          nested
+          onClose={() => setSelectedEnseignant(null)}
+        >
+          <div>
+            <div className="row text-end">
+              <div className="col">
+                <button
+                  className="btn btn-primary close mb-1"
+                  onClick={() => setSelectedEnseignant(null)}
+                  position="top right"
+                >
+                  &times;
+                </button>
+              </div>
+            </div>
+            <div className="col border border-primary border-3 rounded text-center p-3 m-2">
+              <h5>Confirmation de suppression</h5>
+              <p>Êtes-vous sûr de vouloir supprimer l'enseignant suivant ?</p>
+              <p>
+                <strong>Matricule:</strong> {selectedEnseignant.MatriculeProf}
+              </p>
+              <p>
+                <strong>Nom:</strong> {selectedEnseignant.nom}
+              </p>
+              <p>
+                <strong>Prénom:</strong> {selectedEnseignant.prenom}
+              </p>
+              <button
+                className="btn btn-danger m-2"
+                onClick={() => handleDelete(selectedEnseignant.MatriculeProf)}
+              >
+                Supprimer
+              </button>
+              <button
+                className="btn btn-secondary m-2"
+                onClick={() => setSelectedEnseignant(null)}
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </Popup>
+      )}
     </div>
   );
 };
 
-export default GestionEnseignants;
+export default GestionEtudiants;
