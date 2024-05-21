@@ -695,6 +695,23 @@ app.delete("/removeProf/:MatriculeProf", async (req, res) => {
   }
 });
 
+// GET endpoint to fetch professor by username
+app.get("/getProfByUsername/:username", async (req, res) => {
+  try {
+    const { username } = req.params;
+    const prof = await Prof.findOne({ username });
+
+    if (!prof) {
+      return res.status(404).json({ error: "Professor not found" });
+    }
+
+    res.status(200).json(prof);
+  } catch (error) {
+    console.error("Error fetching professor:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.post("/addEtd", async (req, res) => {
   try {
     const {

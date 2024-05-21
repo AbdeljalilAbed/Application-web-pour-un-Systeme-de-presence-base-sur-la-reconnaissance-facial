@@ -30,8 +30,8 @@ const EditProf = ({ enseignant, onClose, onUpdate }) => {
   };
 
   return (
-    <div className="col border border-primary border-3 rounded text-center p-3 m-2">
-      <h5>Modifier Enseignant</h5>
+    <div className="col border border-primary border-3 rounded p-3 m-2">
+      <h5 class="text-center">Modifier Enseignant</h5>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label className="form-label">Matricule</label>
@@ -89,16 +89,20 @@ const EditProf = ({ enseignant, onClose, onUpdate }) => {
             onChange={handleChange}
           />
         </div>
-        <button type="submit" className="btn btn-primary m-2">
-          Mettre à jour
-        </button>
-        <button
-          type="button"
-          className="btn btn-secondary m-2"
-          onClick={onClose}
-        >
-          Annuler
-        </button>
+        <div className="row text-center">
+          <div className="col">
+            <button type="submit" className="btn btn-primary m-2">
+              Mettre à jour
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary m-2"
+              onClick={onClose}
+            >
+              Annuler
+            </button>
+          </div>
+        </div>
       </form>
     </div>
   );
