@@ -1,9 +1,18 @@
 import React, { useState } from "react";
+import Popup from "reactjs-popup";
+import "reactjs-popup/dist/index.css";
+
 import { backendURL } from "../config";
 import axios from "axios";
+import AddEtd from "./AddEtd";
+import UploadImages from "./UploadImages";
+import UploadForm from "./UploadForm";
+import EditEtd from "./EditEtd";
 
-const GestionEnseignants = () => {
+const GestionEtudiants = () => {
   const [matricule, setMatricule] = useState("");
+  const [selectedEtudiant, setSelectedEtudiant] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
 
   const [Etudiants, setEtudiants] = useState([]);
   const [selectedPalier, setSelectedPalier] = useState("");
@@ -75,42 +84,121 @@ const GestionEnseignants = () => {
     const section = e.target.value;
     setSelectedSection(section);
   };
+  // Function to handle removing a student
+  const handleDelete = async (matricule) => {
+    try {
+      await axios.delete(`${backendURL}/removeEtd/${matricule}`);
+      setEtudiants(
+        Etudiants.filter((etudiant) => etudiant.MatriculeEtd !== matricule)
+      );
+      // Additional logic after removing the student
+    } catch (error) {
+      console.error("Error removing student:", error);
+    }
+  };
+  const handleUpdate = async () => {
+    try {
+      const EtudiantsResponse = await axios.get(`${backendURL}/getEtudiants`, {
+        params: {
+          palier: selectedPalier,
+          specialite: selectedSpecialite,
+          section: selectedSection,
+          groupe: selectedGroup,
+          matricule: matricule,
+        },
+      });
+      setEtudiants(EtudiantsResponse.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   return (
     <div className="container rounded mt-3 text-center bg-white vh-100">
       <div className="row p-4">
         <div className="col text-end">
-          {" "}
-          <button
-            //onClick={() => window.location.reload()} // Refresh the page to fetch data again
-            type="button"
-            className="btn btn-secondary"
+          <Popup
+            trigger={
+              <button type="button" className="btn btn-lg btn-secondary">
+                Ajouter Liste Etudiants
+              </button>
+            }
+            modal
+            nested
           >
-            Ajouter Liste Etudiants
-          </button>
+            {(close) => (
+              <div>
+                <div className="row text-end">
+                  <div className="col">
+                    <button
+                      className="btn btn-primary close mb-1"
+                      onClick={close}
+                      position="top right"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                </div>
+                <UploadForm />
+              </div>
+            )}
+          </Popup>
         </div>
         <div className="col">
-          {" "}
-          <button
-            //onClick={() => window.location.reload()} // Refresh the page to fetch data again
-            type="button"
-            className="btn btn-secondary"
+          <Popup
+            trigger={
+              <button type="button" className="btn btn-lg btn-secondary">
+                Ajouter Images Etudiants
+              </button>
+            }
+            modal
+            nested
           >
-            Ajouter Images Etudiants
-          </button>
+            {(close) => (
+              <div>
+                <div className="row text-end">
+                  <div className="col">
+                    <button
+                      className="btn btn-primary close mb-1"
+                      onClick={close}
+                      position="top right"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                </div>
+                <UploadImages />
+              </div>
+            )}
+          </Popup>
         </div>
-        <div
-          className="col text-start
-        "
-        >
-          {" "}
-          <button
-            //onClick={() => window.location.reload()} // Refresh the page to fetch data again
-            type="button"
-            className="btn btn-secondary"
+        <div className="col text-start">
+          <Popup
+            trigger={
+              <button type="button" className="btn btn-lg btn-secondary">
+                Ajouter Etudiant
+              </button>
+            }
+            modal
+            nested
           >
-            Ajouter Etudiant
-          </button>
+            {(close) => (
+              <div>
+                <div className="row text-end">
+                  <div className="col">
+                    <button
+                      className="btn btn-primary close mb-1"
+                      onClick={close}
+                      position="top right"
+                    >
+                      &times;
+                    </button>
+                  </div>
+                </div>
+                <AddEtd />
+              </div>
+            )}
+          </Popup>
         </div>
       </div>
       <div className="row text-center mt-3">
@@ -223,7 +311,10 @@ const GestionEnseignants = () => {
                     <td>
                       {" "}
                       <button
-                        //onClick={() => window.location.reload()} // Refresh the page to fetch data again
+                        onClick={() => {
+                          setSelectedEtudiant(Etd);
+                          setIsEdit(true);
+                        }}
                         type="button"
                         className="btn"
                       >
@@ -242,7 +333,7 @@ const GestionEnseignants = () => {
                     <td>
                       {" "}
                       <button
-                        //onClick={() => window.location.reload()} // Refresh the page to fetch data again
+                        onClick={() => setSelectedEtudiant(Etd)}
                         type="button"
                         className="btn"
                       >
@@ -277,13 +368,16 @@ const GestionEnseignants = () => {
               <tbody>
                 <tr>
                   <td>1</td>
-                  <td>{Etudiants.MatriculeEtudiants}</td>
+                  <td>{Etudiants.MatriculeEtd}</td>
                   <td>{Etudiants.nom}</td>
                   <td>{Etudiants.prenom}</td>
                   <td>
                     {" "}
                     <button
-                      //onClick={() => window.location.reload()} // Refresh the page to fetch data again
+                      onClick={() => {
+                        setSelectedEtudiant(Etudiants);
+                        setIsEdit(true);
+                      }}
                       type="button"
                       className="btn"
                     >
@@ -302,7 +396,7 @@ const GestionEnseignants = () => {
                   <td>
                     {" "}
                     <button
-                      //onClick={() => window.location.reload()} // Refresh the page to fetch data again
+                      onClick={() => setSelectedEtudiant(Etudiants)}
                       type="button"
                       className="btn"
                     >
@@ -324,8 +418,92 @@ const GestionEnseignants = () => {
           )}
         </div>
       </div>
+      {selectedEtudiant && isEdit && (
+        <Popup
+          open={true}
+          modal
+          nested
+          onClose={() => {
+            setSelectedEtudiant(null);
+            setIsEdit(false);
+          }}
+        >
+          <div>
+            <div className="row text-end">
+              <div className="col">
+                <button
+                  className="btn btn-primary close mb-1"
+                  onClick={() => {
+                    setSelectedEtudiant(null);
+                    setIsEdit(false);
+                  }}
+                  position="top right"
+                >
+                  &times;
+                </button>
+              </div>
+            </div>
+            <EditEtd
+              Etudiant={selectedEtudiant}
+              onClose={() => {
+                setSelectedEtudiant(null);
+                setIsEdit(false);
+              }}
+              onUpdate={handleUpdate}
+            />
+          </div>
+        </Popup>
+      )}
+
+      {selectedEtudiant && !isEdit && (
+        <Popup
+          open={true}
+          modal
+          nested
+          onClose={() => setSelectedEtudiant(null)}
+        >
+          <div>
+            <div className="row text-end">
+              <div className="col">
+                <button
+                  className="btn btn-primary close mb-1"
+                  onClick={() => setSelectedEtudiant(null)}
+                  position="top right"
+                >
+                  &times;
+                </button>
+              </div>
+            </div>
+            <div className="col border border-primary border-3 rounded text-center p-3 m-2">
+              <h5>Confirmation de suppression</h5>
+              <p>Êtes-vous sûr de vouloir supprimer l'etudiant suivant ?</p>
+              <p>
+                <strong>Matricule:</strong> {selectedEtudiant.MatriculeEtd}
+              </p>
+              <p>
+                <strong>Nom:</strong> {selectedEtudiant.nom}
+              </p>
+              <p>
+                <strong>Prénom:</strong> {selectedEtudiant.prenom}
+              </p>
+              <button
+                className="btn btn-danger m-2"
+                onClick={() => handleDelete(selectedEtudiant.MatriculeEtd)}
+              >
+                Supprimer
+              </button>
+              <button
+                className="btn btn-secondary m-2"
+                onClick={() => setSelectedEtudiant(null)}
+              >
+                Annuler
+              </button>
+            </div>
+          </div>
+        </Popup>
+      )}
     </div>
   );
 };
 
-export default GestionEnseignants;
+export default GestionEtudiants;

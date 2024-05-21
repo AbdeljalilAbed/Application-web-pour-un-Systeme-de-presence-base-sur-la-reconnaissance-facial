@@ -4,6 +4,12 @@ import { backendURL } from "../config";
 import "./Register.css";
 
 const AddEtd = () => {
+  const [selectedFiles, setSelectedFiles] = useState([]);
+
+  const handleFileChange = (event) => {
+    setSelectedFiles(Array.from(event.target.files));
+  };
+
   const [MatriculeEtd, setMatriculeEtd] = useState("");
   const [palier, setPalier] = useState("");
   const [specialite, setSpecialite] = useState("");
@@ -35,6 +41,27 @@ const AddEtd = () => {
       console.error("Error adding etudiant:", error);
       setErrorMessage("Error adding etudiant. Please try again.");
       setSuccessMessage("");
+    }
+    const formData = new FormData();
+    selectedFiles.forEach((file) => {
+      formData.append("images", file);
+    });
+
+    try {
+      const response = await axios.post(
+        backendURL + "/images-upload",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      console.log(" Image Upload successful:", response.data);
+      alert("Images uploaded successfully");
+    } catch (error) {
+      console.error("Upload failed:", error);
+      alert("Failed to upload data");
     }
   };
 
@@ -118,6 +145,14 @@ const AddEtd = () => {
             id="groupe"
           />
         </div>
+        <input
+          type="file"
+          className="login-input"
+          id="file"
+          multiple
+          onChange={handleFileChange}
+        />
+
         <button className="login-button" type="submit">
           Ajouter
         </button>

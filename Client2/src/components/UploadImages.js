@@ -40,13 +40,14 @@ function UploadImages() {
       <div className="border border-primary border-3 rounded p-2">
         <div className="login-header">Ajouter images etudiants</div>
         <form>
-          <input type="file" multiple onChange={handleFileChange} />
-          <br></br>
-          <button
-            onClick={handleSubmit}
-            className="btn btn-primary m-3"
-            type="submit"
-          >
+          <input
+            type="file"
+            className="login-input"
+            id="file"
+            multiple
+            onChange={handleFileChange}
+          />
+          <button onClick={handleSubmit} className="login-button" type="submit">
             Ajouter
           </button>
         </form>

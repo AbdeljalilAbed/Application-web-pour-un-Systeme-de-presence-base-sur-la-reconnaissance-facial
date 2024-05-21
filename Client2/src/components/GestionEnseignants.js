@@ -6,7 +6,7 @@ import EditProf from "./EditProf";
 import { backendURL } from "../config";
 import axios from "axios";
 
-const GestionEtudiants = () => {
+const GestionEnseignants = () => {
   const [Enseignants, setEnseignants] = useState([]);
   const [selectedEnseignant, setSelectedEnseignant] = useState(null);
   const [isEdit, setIsEdit] = useState(false);
@@ -235,4 +235,4 @@ const GestionEtudiants = () => {
   );
 };
 
-export default GestionEtudiants;
+export default GestionEnseignants;

@@ -235,7 +235,6 @@ app.get("/getEnseignants", async (req, res) => {
   try {
     Enseignants = await Prof.find();
 
-    console.log(Enseignants);
     res.json(Enseignants);
   } catch (err) {
     console.error(err);
@@ -265,7 +264,6 @@ app.get("/getEtudiants", async (req, res) => {
         section: section,
       });
     }
-    console.log(Etudiants);
     res.json(Etudiants);
   } catch (err) {
     console.error(err);
@@ -756,6 +754,29 @@ app.delete("/removeEdt/:palier/:specialite/:section", async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 });
+app.put("/modifierEtudiant/:MatriculeEtd", async (req, res) => {
+  try {
+    const { MatriculeEtd } = req.params;
+    const updateData = req.body;
+
+    const updatedEtudiant = await EtdModel.findOneAndUpdate(
+      { MatriculeEtd },
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedEtudiant) {
+      return res.status(404).json({ error: "Etudiant not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Etudiant updated successfully", updatedEtudiant });
+  } catch (error) {
+    console.error("Error updating etudiant:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
 
 app.post("/addEdt", async (req, res) => {
   try {
@@ -812,6 +833,28 @@ app.delete("/removeCreneau/:MatriculeProf/:IdCreneau", async (req, res) => {
     res.status(200).json({ message: "Creneau removed successfully" });
   } catch (error) {
     console.error("Error Creneau etudiant:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+app.put("/modifierEdt/:MatriculeProf/:IdCreneau", async (req, res) => {
+  try {
+    const { MatriculeProf, IdCreneau } = req.params;
+    const updateData = req.body;
+
+    const updatedEdt = await EnseigneModel.findOneAndUpdate(
+      { MatriculeProf, IdCreneau },
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedEdt) {
+      return res.status(404).json({ error: "Edt not found" });
+    }
+
+    res.status(200).json({ message: "Edt updated successfully", updatedEdt });
+  } catch (error) {
+    console.error("Error updating Edt:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -921,6 +964,24 @@ app.get("/getEmbeddings/:IdCreneau/:MatriculeProf", (req, res) => {
         console.error(err);
         res.status(500).json({ message: "Internal server error" });
       });
+  }
+});
+
+app.delete("/deleteEmbedding/:MatriculeEtd", async (req, res) => {
+  const { MatriculeEtd } = req.params;
+
+  try {
+    // Find and delete the embedding for the given MatriculeEtd
+    const result = await EmbeddingsModel.findOneAndDelete({ MatriculeEtd });
+
+    if (result) {
+      res.status(200).json({ message: "Embedding deleted successfully" });
+    } else {
+      res.status(404).json({ message: "Embedding not found" });
+    }
+  } catch (error) {
+    console.error("Error deleting embedding:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

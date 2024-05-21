@@ -27,11 +27,12 @@ function UploadForm() {
   };
 
   return (
-    <div className="border border-primary border-3 rounded p-3 mt-5">
+    <div className="border border-primary border-3 rounded p-3">
       <div className="login-header">Ajouter liste des etudiants</div>
+      <p>Le ficiher doit être en excel sous fourme d'un tableau</p>
       <form>
         <input
-          placeholder="Matricule"
+          placeholder="Fichier"
           className="login-input"
           id="file"
           type="file"
