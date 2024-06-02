@@ -859,11 +859,16 @@ app.put("/modifierEdt/:MatriculeProf/:IdCreneau", async (req, res) => {
     const { MatriculeProf, IdCreneau } = req.params;
     const updateData = req.body;
 
-    const updatedEdt = await EnseigneModel.findOneAndUpdate(
-      { MatriculeProf, IdCreneau },
-      updateData,
-      { new: true, runValidators: true }
-    );
+    // Adjust the query to handle null values for MatriculeProf
+    const query = {
+      IdCreneau,
+      ...(MatriculeProf !== "null" && { MatriculeProf }),
+    };
+
+    const updatedEdt = await EnseigneModel.findOneAndUpdate(query, updateData, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedEdt) {
       return res.status(404).json({ error: "Edt not found" });

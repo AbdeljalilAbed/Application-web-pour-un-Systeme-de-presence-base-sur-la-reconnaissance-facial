@@ -5,6 +5,7 @@ import UploadEdt from "./UploadEdt";
 import RemoveEdt from "./RemoveEdt";
 import AddEdt from "./AddEdt";
 import EditEdt from "./EditEdt";
+import getJourEtHoraire from "../utils";
 
 import { backendURL } from "../config";
 import axios from "axios";
@@ -289,7 +290,8 @@ const GestionEtudiants = () => {
             <table class="table mt-4 ">
               <thead>
                 <tr>
-                  <th>Créneau</th>
+                  <th>Jour</th>
+                  <th>Horaire</th>
                   <th>Matricule Enseignant</th>
                   <th>Module</th>
                   <th>Salle</th>
@@ -300,7 +302,8 @@ const GestionEtudiants = () => {
               <tbody>
                 {Edts.map((Edt, index) => (
                   <tr key={index}>
-                    <td>{Edt.IdCreneau}</td>
+                    <td>{getJourEtHoraire(Edt.IdCreneau).jour}</td>
+                    <td>{getJourEtHoraire(Edt.IdCreneau).horaire}</td>
                     <td>{Edt.MatriculeProf}</td>
                     <td>{Edt.module}</td>
                     <td>{Edt.salle}</td>
@@ -353,7 +356,8 @@ const GestionEtudiants = () => {
             <table class="table mt-4 ">
               <thead>
                 <tr>
-                  <th>Créneau</th>
+                  <th>Jour</th>
+                  <th>Horaire</th>
                   <th>Matricule Enseignant</th>
                   <th>Module</th>
                   <th>Salle</th>
@@ -363,7 +367,8 @@ const GestionEtudiants = () => {
               </thead>
               <tbody>
                 <tr>
-                  <td>{Edts.IdCreneau}</td>
+                  <td>{getJourEtHoraire(Edts.IdCreneau).jour}</td>
+                  <td>{getJourEtHoraire(Edts.IdCreneau).horaire}</td>
                   <td>{Edts.MatriculeProf}</td>
                   <td>{Edts.module}</td>
                   <td>{Edts.salle}</td>
