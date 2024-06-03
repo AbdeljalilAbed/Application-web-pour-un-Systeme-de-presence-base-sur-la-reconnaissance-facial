@@ -48,7 +48,7 @@ function Admin() {
   };
 
   return (
-    <div className="container-fluid bg">
+    <div className="container-fluid vh-100 bg">
       <br></br>
       <div className="container p-3 bg-body rounded ">
         <div className="row">

@@ -114,7 +114,7 @@ const GestionEtudiants = () => {
   };
 
   return (
-    <div className="container rounded mt-3 text-center bg-white vh-100">
+    <div className="container rounded mt-3 text-center bg-white">
       <div className="row p-4">
         <div className="col text-end">
           <Popup

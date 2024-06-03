@@ -5,7 +5,7 @@ import UploadEdt from "./UploadEdt";
 import RemoveEdt from "./RemoveEdt";
 import AddEdt from "./AddEdt";
 import EditEdt from "./EditEdt";
-import getJourEtHoraire from "../utils";
+import getJourEtHoraire from "../getJourEtHoraire";
 
 import { backendURL } from "../config";
 import axios from "axios";
@@ -91,7 +91,7 @@ const GestionEtudiants = () => {
   const handleDelete = async (IdCreneau, MatriculeProf) => {
     try {
       await axios.delete(
-        `${backendURL}/removeCreneau/${IdCreneau}/${MatriculeProf}}`
+        `${backendURL}/removeCreneau/${IdCreneau}/${MatriculeProf}`
       );
       setEdts(
         Edts.filter(
@@ -353,69 +353,7 @@ const GestionEtudiants = () => {
               </tbody>
             </table>
           ) : (
-            <table class="table mt-4 ">
-              <thead>
-                <tr>
-                  <th>Jour</th>
-                  <th>Horaire</th>
-                  <th>Matricule Enseignant</th>
-                  <th>Module</th>
-                  <th>Salle</th>
-                  <th></th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>{getJourEtHoraire(Edts.IdCreneau).jour}</td>
-                  <td>{getJourEtHoraire(Edts.IdCreneau).horaire}</td>
-                  <td>{Edts.MatriculeProf}</td>
-                  <td>{Edts.module}</td>
-                  <td>{Edts.salle}</td>
-                  <td>
-                    {" "}
-                    <button
-                      onClick={() => {
-                        setSelectedEdt(Edts);
-                        setIsEdit(true);
-                      }}
-                      type="button"
-                      className="btn"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        fill="currentColor"
-                        class="bi bi-pen"
-                        viewBox="0 0 16 16"
-                      >
-                        <path d="m13.498.795.149-.149a1.207 1.207 0 1 1 1.707 1.708l-.149.148a1.5 1.5 0 0 1-.059 2.059L4.854 14.854a.5.5 0 0 1-.233.131l-4 1a.5.5 0 0 1-.606-.606l1-4a.5.5 0 0 1 .131-.232l9.642-9.642a.5.5 0 0 0-.642.056L6.854 4.854a.5.5 0 1 1-.708-.708L9.44.854A1.5 1.5 0 0 1 11.5.796a1.5 1.5 0 0 1 1.998-.001m-.644.766a.5.5 0 0 0-.707 0L1.95 11.756l-.764 3.057 3.057-.764L14.44 3.854a.5.5 0 0 0 0-.708z" />
-                      </svg>{" "}
-                    </button>
-                  </td>
-                  <td>
-                    {" "}
-                    <button
-                      onClick={() => setSelectedEdt(Edts)}
-                      type="button"
-                      className="btn"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="16"
-                        height="16"
-                        fill="currentColor"
-                        class="bi bi-trash-fill"
-                        viewBox="0 0 16 16"
-                      >
-                        <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0" />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <p className="p-5">Aucun créneau à afficher</p>
           )}
         </div>
       </div>

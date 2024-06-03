@@ -841,7 +841,7 @@ app.delete("/removeImages/:MatriculeEtd", async (req, res) => {
   }
 });
 
-app.delete("/removeCreneau/:MatriculeProf/:IdCreneau", async (req, res) => {
+app.delete("/removeCreneau/:IdCreneau/:MatriculeProf", async (req, res) => {
   try {
     const { MatriculeProf, IdCreneau } = req.params;
 

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { backendURL } from "../config";
+import getIdCreneau from "../getIdCreneau"; // Importing the getIdCreneau function
 
 const EditEdt = ({ Edt, onClose, onUpdate }) => {
   const [formData, setFormData] = useState({
-    IdCreneau: Edt.IdCreneau,
     MatriculeProf: Edt.MatriculeProf,
     palier: Edt.palier,
     specialite: Edt.specialite,
@@ -13,6 +13,18 @@ const EditEdt = ({ Edt, onClose, onUpdate }) => {
     module: Edt.module,
     salle: Edt.salle,
   });
+  const [jour, setJour] = useState("");
+  const [horaire, setHoraire] = useState("");
+
+  const jours = ["Samedi", "Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi"];
+  const horaires = [
+    "08:00 - 09:30",
+    "09:40 - 11:10",
+    "11:20 - 12:50",
+    "13:00 - 14:30",
+    "14:40 - 16:10",
+    "16:20 - 17:50",
+  ];
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -20,10 +32,13 @@ const EditEdt = ({ Edt, onClose, onUpdate }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const IdCreneau = getIdCreneau(jour, horaire);
+    const dataToSend = { ...formData, IdCreneau };
+
     try {
       await axios.put(
         `${backendURL}/modifierEdt/${Edt.MatriculeProf}/${Edt.IdCreneau}`,
-        formData
+        dataToSend
       );
       onUpdate();
       onClose();
@@ -37,14 +52,34 @@ const EditEdt = ({ Edt, onClose, onUpdate }) => {
       <h5 className="text-center">Modifier Créneau</h5>
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
-          <label className="form-label">Créneau</label>
-          <input
-            type="text"
-            className="form-control"
-            name="IdCreneau"
-            value={formData.IdCreneau}
-            onChange={handleChange}
-          />
+          <label className="form-label">Jour</label>
+          <select
+            className="form-select"
+            value={jour}
+            onChange={(e) => setJour(e.target.value)}
+          >
+            <option value="">Sélectionnez un jour</option>
+            {jours.map((j) => (
+              <option key={j} value={j}>
+                {j}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Horaire</label>
+          <select
+            className="form-select"
+            value={horaire}
+            onChange={(e) => setHoraire(e.target.value)}
+          >
+            <option value="">Sélectionnez un horaire</option>
+            {horaires.map((h) => (
+              <option key={h} value={h}>
+                {h}
+              </option>
+            ))}
+          </select>
         </div>
         <div className="mb-3">
           <label className="form-label">Matricule Enseignant</label>
