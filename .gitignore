@@ -3,3 +3,10 @@ Client/
 /Client2/node_modules
 /Server/node_modules
 *.json
+*.json
+*.json
+/Server/uploads
+Server/EDTM1IV.xlsx
+*.json
+*.json
+*.json

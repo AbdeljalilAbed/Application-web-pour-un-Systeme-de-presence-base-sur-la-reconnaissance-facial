@@ -7,7 +7,7 @@ import Image from "../images/img.jpg"; // Import the image
 function HomePage() {
   return (
     <>
-      <div className="container-fluid">
+      <div className="container-fluid p-auto">
         <div className="d-flex flex-column mb-3">
           <div className="p-2">
             <div className="d-flex justify-content-start">
@@ -20,17 +20,18 @@ function HomePage() {
             <div class="col-md pt-5">
               <div class="row m-2">
                 <div class="col-sm">
-                  <h1>Face Recognition Attendance System</h1>
+                  <h1>Système de présence par reconnaissance faciale</h1>
                 </div>
               </div>
               <div class="row m-2">
                 <div class="col-sm">
                   <p>
-                    Welcome to the Smart Faculty Face Recognition Attendance
-                    System! Our cutting-edge solution revolutionizes attendance
-                    management in our Computer Science faculty. Using advanced
-                    facial recognition technology, marking attendance is now
-                    effortless and accurate.
+                    Bienvenue dans le Système de Gestion des Présences par
+                    Reconnaissance Faciale Intelligente de notre faculté
+                    d'informatique ! Notre solution de pointe révolutionne la
+                    gestion des présences dans notre faculté d'informatique.
+                    Grâce à une technologie de reconnaissance faciale avancée,
+                    la prise de présence est désormais facile et précise.
                   </p>
                 </div>
               </div>
@@ -38,7 +39,7 @@ function HomePage() {
                 <div class="col-sm">
                   <Link to="/Auth">
                     <button type="button" class="btn  btn-dark btn-lg">
-                      Get started
+                      Authentification
                     </button>
                   </Link>
                 </div>

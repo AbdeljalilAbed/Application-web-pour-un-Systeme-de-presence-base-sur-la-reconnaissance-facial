@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 
 function Table() {
   //const [Etds, setEtds] = useState([]);
-  const [EtdsG2, setEtdsG2] = useState([]);
+  const [Etds, setEtds] = useState([]);
   const [isPresent, setIsPresent] = useState({});
   // eslint-disable-next-line no-unused-vars
   const [matricule, setMatricule] = useState("");
@@ -35,7 +35,7 @@ function Table() {
           `${backendURL}/getEtds/${decodedToken.username}`
         );
         const etdsData = etdsResponse.data;
-        setEtdsG2(etdsResponse.data);
+        setEtds(etdsResponse.data);
 
         const aggregatedResponse = await axios.get(
           backendURL + "/getEtdsPresent"
@@ -93,12 +93,12 @@ function Table() {
           type="button"
           className="btn btn-secondary btn-lg"
         >
-          Refresh Attendance
+          Actualiser la presence
         </button>
       </div>
 
       <div className="table-responsive">
-        {EtdsG2.length > 0 ? (
+        {Etds.length > 0 ? (
           <table className="table table-bordered">
             <thead>
               <tr>
@@ -110,7 +110,7 @@ function Table() {
               </tr>
             </thead>
             <tbody>
-              {EtdsG2.map((Etd, index) => (
+              {Etds.map((Etd, index) => (
                 <tr key={index}>
                   <th scope="row">{index + 1}</th>
                   <td>{Etd.MatriculeEtd}</td>
