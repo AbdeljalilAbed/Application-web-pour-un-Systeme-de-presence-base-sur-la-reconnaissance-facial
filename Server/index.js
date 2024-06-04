@@ -13,7 +13,6 @@ const cors = require("cors");
 const EtdModel = require("./models/etudiants");
 const PModel = require("./models/presence");
 const EnseigneModel = require("./models/enseigne");
-const User = require("./models/user");
 const EmbeddingsModel = require("./models/embeddings");
 const Prof = require("./models/Profs");
 const PresenceModel = require("./models/presenceHistory");
@@ -181,7 +180,7 @@ app.post("/login", async (req, res) => {
     const token = jwt.sign({ username: user.username }, "secretKey");
 
     user.role = "prof";
-    res.send({ token, role: user.role, matricule: user.matricule });
+    res.send({ token, role: user.role, matricule: user.MatriculeProf });
   }
 });
 
@@ -190,12 +189,12 @@ app.get("/getEtds/:username", async (req, res) => {
   const { username } = req.params;
   console.log(username);
 
-  const user = await User.findOne({ username: username.toString() });
+  const user = await Prof.findOne({ username: username.toString() });
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
 
-  const MatriculeProf = user.matricule;
+  const MatriculeProf = user.MatriculeProf;
   console.log(MatriculeProf);
 
   try {
@@ -395,12 +394,12 @@ app.get("/getDatesByCreneau/:username", async (req, res) => {
   const { palier, specialite, section, module, groupe } = req.query;
 
   try {
-    const user = await User.findOne({ username: username.toString() });
+    const user = await Prof.findOne({ username: username.toString() });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const MatriculeProf = user.matricule;
+    const MatriculeProf = user.MatriculeProf;
     console.log(MatriculeProf);
 
     const creneau = await EnseigneModel.aggregate([
@@ -461,12 +460,12 @@ app.get("/getHistoryPresent/:date/:username", async (req, res) => {
   const { palier, specialite, section, module } = req.query;
 
   try {
-    const user = await User.findOne({ username: username.toString() });
+    const user = await Prof.findOne({ username: username.toString() });
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const MatriculeProf = user.matricule;
+    const MatriculeProf = user.MatriculeProf;
     console.log(MatriculeProf);
     const creneau = await EnseigneModel.aggregate([
       {
